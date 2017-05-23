@@ -1,0 +1,101 @@
+===============================================================================
+ILASP v3.1.0-e
+===============================================================================
+
+Features:
+
+* Bias constraints, which allow much more control on the hypothesis space.
+  Currently weak constraints are not supported in the hypothesis space when
+  combined with bias constraints, and neither are arithmetic operators.
+
+Bug fix:
+
+* When there are no positive examples, the hypothesis can now be unsatisfiable
+  (as it should be). This bug mainly effected the --2i algorithm
+
+===============================================================================
+
+===============================================================================
+ILASP v3.1.0-d
+===============================================================================
+
+Bug fix:
+
+* Constraint algorithm now correctly handles examples with no penalties.
+
+===============================================================================
+
+===============================================================================
+ILASP v3.1.0-c
+===============================================================================
+
+Features:
+
+* add option for specifying which clingo to use, and a flag to produce clingo
+  4.5 programs, rather than 4.3
+
+===============================================================================
+
+
+===============================================================================
+ILASP v3.1.0-b
+===============================================================================
+
+Features:
+
+* add a caching option for ILASP2i.
+
+===============================================================================
+
+
+===============================================================================
+ILASP v3.1.0-a
+===============================================================================
+
+Features:
+
+* remove the "-rs" flag, as "--v3" now incorporates these reductions in the
+* main algorithm.
+
+* add a new dedicated constraint learning algorithm, which permits a timeout.
+
+===============================================================================
+
+
+===============================================================================
+ILASP v3.0.1-a
+===============================================================================
+
+Features:
+
+* Add a new flag "-rs", which runs some preprocessing on the hypothesis space,
+  to remove some rules which cannot possibly appear in an optimal hypothesis.
+
+Bug fix:
+
+* Rules can now have more than 6 literals...
+
+===============================================================================
+
+
+===============================================================================
+ILASP v3.0.0
+===============================================================================
+
+Features:
+
+* Add a new version of the ILASP algorithm (ILASP3), which is called using --v3.
+  Note that on smaller tasks ILASP2 is faster, and so ILASP2 runs by default.
+  ILASP3 is specifically targeted at tasks with noisy examples.
+
+* ILASP3 uses two optional features: propagation, and implication. By default,
+  these are on if you use --v3, but if you would like to turn them off use the
+  flags -np or -ni respectively.
+
+* To see more information about how an ILASP3 task is running, please use the
+  -d option in conjunction with the --v3 option.
+
+===============================================================================
+
+If you encounter problems with this release, please email
+mark.law09@imperial.ac.uk.
