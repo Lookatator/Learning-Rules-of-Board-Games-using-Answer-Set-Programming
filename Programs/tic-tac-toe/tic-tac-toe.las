@@ -3,7 +3,7 @@ role(player1, x).
 role(player2, o).
 
 % initialize the time
-time(1..10).
+time(1..6).
 
 % describe the state of the game before any player plays
 holds(cell(coord(1..3,1..3), empty),1).
@@ -49,7 +49,7 @@ terminated(T+1) :- terminated(T), time(T).
 :- does(P,M,T), not legal(P,M,T).
 
 % the game has to stop
-:- 0{terminated(T) : time(T)}0.
+%:- 0{terminated(T) : time(T)}0.
 
 %% turn-based game
 % a player cannot play twice
@@ -65,6 +65,22 @@ does(player1, fill(coord(2,2)),1).
 does(player2, fill(coord(1,2)),2).
 does(player1, fill(coord(1,1)),3).
 does(player2, fill(coord(3,2)),4).
-
-#show does/3.
-#show wins/2.
+%:- not wins(player1, 6).
+% hypothesis space
+#modeh(does(player1,fill(coord(const(x),const(x))),5)).
+#modeh(does(player1,fill(coord(3,3)),5)).
+%#modeh(does(player1,fill(coord(const(x),const(x))),7)).
+%#modeb(1, does(player2,fill(coord(const(x),const(x))),6)).
+%#bias(":- head(does(player1,A,5)), not legal(player1,A,5).").
+#bias(":- head(does(player1,A,T1)), body(does(player2,A,T2)), T1<T2.").
+#bias(":- head(does(player1,A,T1)), body(naf(does(player2,A,T2))), T1<T2.").
+#bias(":- body(naf(does(player2,A,T2))).").
+#bias(":- constraint.").
+#constant(x, 1).
+#constant(x, 2).
+#constant(x, 3).
+#max_penalty(10).
+#disallow_multiple_head_variables.
+#pos(a, {does(player1,fill(coord(3,3)),5)},{}).
+#neg(b, {}, {wins(player1,6),does(player1,fill(coord(3,3)),5)}).
+%idees : script python generer hypotheses, weak constraints pour indiquer préférences 
