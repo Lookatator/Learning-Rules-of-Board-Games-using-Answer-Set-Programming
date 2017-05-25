@@ -65,6 +65,11 @@ does(player1, fill(coord(2,2)),1).
 does(player2, fill(coord(1,2)),2).
 does(player1, fill(coord(1,1)),3).
 does(player2, fill(coord(3,2)),4).
+does(player1, fill(coord(3,1)),5).
+
+does(player1, fill(coord(2,1)),7) :- does(player2, Z,6), not Z=fill(coord(2,1)). 
+does(player1, fill(coord(1,3)),7) :- does(player2, fill(coord(2,1)),6). 
+:- not wins(player1, 8).
 
 % hypothesis space
 %#modeh(does(player1,fill(coord(const(x),const(x))),5)).
