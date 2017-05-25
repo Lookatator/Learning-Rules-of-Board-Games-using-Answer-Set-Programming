@@ -65,9 +65,9 @@ does(player1, fill(coord(2,2)),1).
 does(player2, fill(coord(1,2)),2).
 does(player1, fill(coord(1,1)),3).
 does(player2, fill(coord(3,2)),4).
-%:- not wins(player1, 6).
+
 % hypothesis space
-#modeh(does(player1,fill(coord(const(x),const(x))),5)).
+%#modeh(does(player1,fill(coord(const(x),const(x))),5)).
 #modeh(does(player1,fill(coord(3,3)),5)).
 %#modeh(does(player1,fill(coord(const(x),const(x))),7)).
 %#modeb(1, does(player2,fill(coord(const(x),const(x))),6)).
@@ -81,6 +81,7 @@ does(player2, fill(coord(3,2)),4).
 #constant(x, 3).
 #max_penalty(10).
 #disallow_multiple_head_variables.
-#pos(a, {does(player1,fill(coord(3,3)),5)},{}).
-#neg(b, {}, {wins(player1,6),does(player1,fill(coord(3,3)),5)}).
+
+#pos(a, {},{}).
+#neg(b, {}, {wins(player1,6)}).
 %idees : script python generer hypotheses, weak constraints pour indiquer préférences 
