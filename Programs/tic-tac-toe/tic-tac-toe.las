@@ -3,7 +3,7 @@ role(player1, x).
 role(player2, o).
 
 % initialize the time
-time(1..6).
+time(1..10).
 
 % describe the state of the game before any player plays
 holds(cell(coord(1..3,1..3), empty),1).
@@ -41,7 +41,24 @@ full_diagonal(S,T) :- role(P,S), time(T), holds(cell(coord(1,3),S),T), holds(cel
 move_domain(fill(coord(1..3,1..3))).
 
 % only one action is performed at every step
-1{does(player1,fill(coord(1..3,1..3)),T) ; does(player2,fill(coord(1..3,1..3)),T)}1 :- time(T), not terminated(T).
+1{does(player1,fill(coord(1,1)),T) ; 
+  does(player1,fill(coord(1,2)),T) ; 
+  does(player1,fill(coord(1,3)),T) ; 
+  does(player1,fill(coord(2,1)),T) ; 
+  does(player1,fill(coord(2,2)),T) ; 
+  does(player1,fill(coord(2,3)),T) ; 
+  does(player1,fill(coord(3,1)),T) ; 
+  does(player1,fill(coord(3,2)),T) ; 
+  does(player1,fill(coord(3,3)),T) ; 
+  does(player2,fill(coord(1,1)),T) ; 
+  does(player2,fill(coord(1,2)),T) ; 
+  does(player2,fill(coord(1,3)),T) ; 
+  does(player2,fill(coord(2,1)),T) ; 
+  does(player2,fill(coord(2,2)),T) ; 
+  does(player2,fill(coord(2,3)),T) ; 
+  does(player2,fill(coord(3,1)),T) ; 
+  does(player2,fill(coord(3,2)),T) ; 
+  does(player2,fill(coord(3,3)),T)}1 :- time(T), not terminated(T).
 terminated(T) :- terminal(T).
 terminated(T+1) :- terminated(T), time(T).
 
@@ -65,28 +82,31 @@ does(player1, fill(coord(2,2)),1).
 does(player2, fill(coord(1,2)),2).
 does(player1, fill(coord(1,1)),3).
 does(player2, fill(coord(3,2)),4).
-does(player1, fill(coord(3,1)),5).
+%does(player1, fill(coord(3,3)),5).
 
-does(player1, fill(coord(2,1)),7) :- does(player2, Z,6), not Z=fill(coord(2,1)). 
-does(player1, fill(coord(1,3)),7) :- does(player2, fill(coord(2,1)),6). 
-:- not wins(player1, 8).
+%does(player1, fill(coord(2,1)),7) :- does(player2, Z,6), not Z=fill(coord(2,1)). 
+%does(player1, fill(coord(1,3)),7) :- does(player2, fill(coord(2,1)),6). 
+%:- not wins(player1, 8).
 
 % hypothesis space
 %#modeh(does(player1,fill(coord(const(x),const(x))),5)).
 #modeh(does(player1,fill(coord(3,3)),5)).
+%#modeb(1,does(player2,fill(coord(3,2)),4)).
+
 %#modeh(does(player1,fill(coord(const(x),const(x))),7)).
 %#modeb(1, does(player2,fill(coord(const(x),const(x))),6)).
 %#bias(":- head(does(player1,A,5)), not legal(player1,A,5).").
-#bias(":- head(does(player1,A,T1)), body(does(player2,A,T2)), T1<T2.").
-#bias(":- head(does(player1,A,T1)), body(naf(does(player2,A,T2))), T1<T2.").
-#bias(":- body(naf(does(player2,A,T2))).").
-#bias(":- constraint.").
+%#bias(":- head(does(player1,A,T1)), body(does(player2,A,T2)), T1<T2.").
+%#bias(":- head(does(player1,A,T1)), body(naf(does(player2,A,T2))), T1<T2.").
+%#bias(":- body(naf(does(player2,A,T2))).").
+%#bias(":- constraint.").
 #constant(x, 1).
 #constant(x, 2).
 #constant(x, 3).
-#max_penalty(10).
-#disallow_multiple_head_variables.
+%#max_penalty(10).
+%#disallow_multiple_head_variables.
 
-#pos(a, {},{}).
-#neg(b, {}, {wins(player1,6)}).
+#pos(a, {}, {}).
+#neg(b, {},{wins(player1, 6)}).
+
 %idees : script python generer hypotheses, weak constraints pour indiquer préférences 
