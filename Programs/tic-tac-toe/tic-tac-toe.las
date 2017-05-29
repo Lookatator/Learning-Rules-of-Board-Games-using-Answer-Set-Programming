@@ -89,24 +89,32 @@ does(player2, fill(coord(3,2)),4).
 %:- not wins(player1, 8).
 
 % hypothesis space
-%#modeh(does(player1,fill(coord(const(x),const(x))),5)).
-#modeh(does(player1,fill(coord(3,3)),5)).
-%#modeb(1,does(player2,fill(coord(3,2)),4)).
+#modeh(does(player1,fill(coord(const(x),const(x))),5)).
 
-%#modeh(does(player1,fill(coord(const(x),const(x))),7)).
-%#modeb(1, does(player2,fill(coord(const(x),const(x))),6)).
+#modeh(does(player1,fill(coord(const(x),const(x))),7)).
+#modeb(1, does(player2,fill(coord(const(x),const(x))),6)).
+#modeb(1, legal(player1, fill(coord(const(x),const(x))), 7), (positive)).
 %#bias(":- head(does(player1,A,5)), not legal(player1,A,5).").
-%#bias(":- head(does(player1,A,T1)), body(does(player2,A,T2)), T1<T2.").
-%#bias(":- head(does(player1,A,T1)), body(naf(does(player2,A,T2))), T1<T2.").
+#bias(":- head(does(player1,A,T1)), body(does(player2,B,T2)), T1<T2.").
+#bias(":- head(does(player1,A,T1)), body(naf(does(player2,B,T2))), T1<T2.").
 %#bias(":- body(naf(does(player2,A,T2))).").
-%#bias(":- constraint.").
+#bias(":- constraint.").
+%#bias("has_body :- body(B).").
+%#bias("has_body_naf :- body(naf(B)).").
+%#bias(":- head(does(player1,A,7)), not has_body.").
+#bias(":- not body(legal(player1,A,7)), head(does(player1,A,7)).").
+
+#bias("p2_action :- body(does(player2,B,6)).").
+#bias("p2_action :- body(naf(does(player2,B,6))).").
+#bias(":- not p2_action, head(does(player1,A,7)).").
+#bias(":- body(legal(P,B,7)), head(does(P,A,5)).").
 #constant(x, 1).
 #constant(x, 2).
 #constant(x, 3).
-%#max_penalty(10).
+#max_penalty(30).
 %#disallow_multiple_head_variables.
 
 #pos(a, {}, {}).
-#neg(b, {},{wins(player1, 6)}).
+#neg(b, {},{wins(player1, 8)}).
 
 %idees : script python generer hypotheses, weak constraints pour indiquer préférences 
