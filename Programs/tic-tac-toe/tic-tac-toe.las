@@ -82,7 +82,6 @@ does(player1, fill(coord(2,2)),1).
 does(player2, fill(coord(1,2)),2).
 does(player1, fill(coord(1,1)),3).
 does(player2, fill(coord(3,2)),4).
-%does(player1, fill(coord(3,3)),5).
 
 %does(player1, fill(coord(2,1)),7) :- does(player2, Z,6), not Z=fill(coord(2,1)). 
 %does(player1, fill(coord(1,3)),7) :- does(player2, fill(coord(2,1)),6). 
@@ -90,13 +89,15 @@ does(player2, fill(coord(3,2)),4).
 
 % hypothesis space
 #modeh(does(player1,fill(coord(const(x),const(x))),5)).
-
 #modeh(does(player1,fill(coord(const(x),const(x))),7)).
-#modeb(1, does(player2,fill(coord(const(x),const(x))),6)).
+
+#modeb(1, does(player2,fill(coord(const(x),const(x))),6), (positive)).
 #modeb(1, legal(player1, fill(coord(const(x),const(x))), 7), (positive)).
+
+
 %#bias(":- head(does(player1,A,5)), not legal(player1,A,5).").
 #bias(":- head(does(player1,A,T1)), body(does(player2,B,T2)), T1<T2.").
-#bias(":- head(does(player1,A,T1)), body(naf(does(player2,B,T2))), T1<T2.").
+%#bias(":- head(does(player1,A,T1)), body(naf(does(player2,B,T2))), T1<T2.").
 %#bias(":- body(naf(does(player2,A,T2))).").
 #bias(":- constraint.").
 %#bias("has_body :- body(B).").
@@ -105,9 +106,10 @@ does(player2, fill(coord(3,2)),4).
 #bias(":- not body(legal(player1,A,7)), head(does(player1,A,7)).").
 
 #bias("p2_action :- body(does(player2,B,6)).").
-#bias("p2_action :- body(naf(does(player2,B,6))).").
+%#bias("p2_action :- body(naf(does(player2,B,6))).").
 #bias(":- not p2_action, head(does(player1,A,7)).").
 #bias(":- body(legal(P,B,7)), head(does(P,A,5)).").
+
 #constant(x, 1).
 #constant(x, 2).
 #constant(x, 3).
