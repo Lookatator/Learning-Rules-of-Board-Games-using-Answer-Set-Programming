@@ -23,6 +23,8 @@ wins(P,T) :- role(P,S), full_line(S,T), not terminated(T-1).
 wins(P,T) :- role(P,S), full_column(S,T), not terminated(T-1).
 wins(P,T) :- role(P,S), full_diagonal(S,T), not terminated(T-1).
 
+wins(P) :- wins(P,T).
+
 %all_filled(T) :- time(T), not holds(cell(X,empty),T) : X=coord(1..3,1..3). 
 
 % describe the different goals that a player may fulfill
@@ -80,43 +82,41 @@ terminated(T+1) :- terminated(T), time(T).
 % describing the game
 does(player1, fill(coord(2,2)),1).
 does(player2, fill(coord(1,2)),2).
-does(player1, fill(coord(1,1)),3).
-does(player2, fill(coord(3,2)),4).
 
 %does(player1, fill(coord(2,1)),7) :- does(player2, Z,6), not Z=fill(coord(2,1)). 
 %does(player1, fill(coord(1,3)),7) :- does(player2, fill(coord(2,1)),6). 
 %:- not wins(player1, 8).
 
 % hypothesis space
-#modeh(does(player1,fill(coord(const(x),const(x))),5)).
-#modeh(does(player1,fill(coord(const(x),const(x))),7)).
+#modeh(does(player1,fill(coord(const(x),const(x))),const(t1))).
 
-#modeb(1, does(player2,fill(coord(const(x),const(x))),6), (positive)).
-#modeb(1, legal(player1, fill(coord(const(x),const(x))), 7), (positive)).
+#modeb(2, does(player2,fill(coord(const(x),const(x))),const(t2)), (positive)).
+#modeb(1, legal(player1, fill(coord(const(x),const(x))), const(t1)), (positive)).
 
-
-%#bias(":- head(does(player1,A,5)), not legal(player1,A,5).").
 #bias(":- head(does(player1,A,T1)), body(does(player2,B,T2)), T1<T2.").
-%#bias(":- head(does(player1,A,T1)), body(naf(does(player2,B,T2))), T1<T2.").
-%#bias(":- body(naf(does(player2,A,T2))).").
+#bias(":- not body(legal(player1,A,T)), head(does(player1,A,T)).").
 #bias(":- constraint.").
-%#bias("has_body :- body(B).").
-%#bias("has_body_naf :- body(naf(B)).").
-%#bias(":- head(does(player1,A,7)), not has_body.").
-#bias(":- not body(legal(player1,A,7)), head(does(player1,A,7)).").
-
-#bias("p2_action :- body(does(player2,B,6)).").
-%#bias("p2_action :- body(naf(does(player2,B,6))).").
-#bias(":- not p2_action, head(does(player1,A,7)).").
-#bias(":- body(legal(P,B,7)), head(does(P,A,5)).").
+#bias("p2_action(4) :- body(does(player2,B,4)).").
+#bias(":- not p2_action(4), head(does(player1,A,5)).").
+#bias("p2_action(6) :- body(does(player2,B,6)), body(does(player2,A,4)).").
+%#bias("p2_action(6) :- body(does(player2,B,4)).").
+#bias(":- not p2_action(6), head(does(player1,A,7)).").
 
 #constant(x, 1).
 #constant(x, 2).
 #constant(x, 3).
+
+#constant(t1,3).
+#constant(t1,5).
+#constant(t1,7).
+
+#constant(t2,6).
+#constant(t2,4).
+
 #max_penalty(30).
 %#disallow_multiple_head_variables.
 
 #pos(a, {}, {}).
-#neg(b, {},{wins(player1, 8)}).
+#neg(b, {},{wins(player1)}).
 
 %idees : script python generer hypotheses, weak constraints pour indiquer préférences 
