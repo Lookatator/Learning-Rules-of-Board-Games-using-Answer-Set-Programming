@@ -90,17 +90,20 @@ does(player2, fill(coord(1,2)),2).
 % hypothesis space
 #modeh(does(player1,fill(coord(const(x),const(x))),const(t1))).
 
-#modeb(2, does(player2,fill(coord(const(x),const(x))),const(t2)), (positive)).
-#modeb(1, legal(player1, fill(coord(const(x),const(x))), const(t1)), (positive)).
+#modeb(2, does(player2,fill(coord(const(x),const(x))),const(t2))).
+%#modeb(1, legal(player1, fill(coord(const(x),const(x))), const(t1))).
 
 #bias(":- head(does(player1,A,T1)), body(does(player2,B,T2)), T1<T2.").
-#bias(":- not body(legal(player1,A,T)), head(does(player1,A,T)).").
+#bias(":- head(does(player1,A,T1)), body(naf(does(player2,B,T2))), T1<T2.").
+#bias(":- body(does(player2,B,T2)), body((does(player2,C,T2))).").
+#bias(":- body(does(player2,B,T2)), body(naf(does(player2,C,T2))).").
+%#bias(":- not body(legal(player1,A,T)), head(does(player1,A,T)).").
 #bias(":- constraint.").
-#bias("p2_action(4) :- body(does(player2,B,4)).").
-#bias(":- not p2_action(4), head(does(player1,A,5)).").
-#bias("p2_action(6) :- body(does(player2,B,6)), body(does(player2,A,4)).").
+%#bias("p2_action(4) :- body(does(player2,B,4)).").
+%#bias(":- not p2_action(4), head(does(player1,A,5)).").
+%#bias("p2_action(6) :- body(does(player2,B,6)), body(does(player2,A,4)).").
 %#bias("p2_action(6) :- body(does(player2,B,4)).").
-#bias(":- not p2_action(6), head(does(player1,A,7)).").
+%#bias(":- not p2_action(6), head(does(player1,A,7)).").
 
 #constant(x, 1).
 #constant(x, 2).
@@ -108,15 +111,108 @@ does(player2, fill(coord(1,2)),2).
 
 #constant(t1,3).
 #constant(t1,5).
-#constant(t1,7).
+%#constant(t1,7).
 
-#constant(t2,6).
 #constant(t2,4).
+%#constant(t2,6).
 
-#max_penalty(30).
+
+#max_penalty(15).
 %#disallow_multiple_head_variables.
 
-#pos(a, {}, {}).
-#neg(b, {},{wins(player1)}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,1)),6) :- legal(player2, fill(coord(1,1)),6). does(player2, fill(coord(1,1)),4) :- legal(player2, fill(coord(1,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,2)),6) :- legal(player2, fill(coord(1,2)),6). does(player2, fill(coord(1,1)),4) :- legal(player2, fill(coord(1,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,3)),6) :- legal(player2, fill(coord(1,3)),6). does(player2, fill(coord(1,1)),4) :- legal(player2, fill(coord(1,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,1)),6) :- legal(player2, fill(coord(2,1)),6). does(player2, fill(coord(1,1)),4) :- legal(player2, fill(coord(1,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,2)),6) :- legal(player2, fill(coord(2,2)),6). does(player2, fill(coord(1,1)),4) :- legal(player2, fill(coord(1,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,3)),6) :- legal(player2, fill(coord(2,3)),6). does(player2, fill(coord(1,1)),4) :- legal(player2, fill(coord(1,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,1)),6) :- legal(player2, fill(coord(3,1)),6). does(player2, fill(coord(1,1)),4) :- legal(player2, fill(coord(1,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,2)),6) :- legal(player2, fill(coord(3,2)),6). does(player2, fill(coord(1,1)),4) :- legal(player2, fill(coord(1,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,3)),6) :- legal(player2, fill(coord(3,3)),6). does(player2, fill(coord(1,1)),4) :- legal(player2, fill(coord(1,1)),4).}).
+
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,1)),6) :- legal(player2, fill(coord(1,1)),6). does(player2, fill(coord(1,2)),4) :- legal(player2, fill(coord(1,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,2)),6) :- legal(player2, fill(coord(1,2)),6). does(player2, fill(coord(1,2)),4) :- legal(player2, fill(coord(1,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,3)),6) :- legal(player2, fill(coord(1,3)),6). does(player2, fill(coord(1,2)),4) :- legal(player2, fill(coord(1,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,1)),6) :- legal(player2, fill(coord(2,1)),6). does(player2, fill(coord(1,2)),4) :- legal(player2, fill(coord(1,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,2)),6) :- legal(player2, fill(coord(2,2)),6). does(player2, fill(coord(1,2)),4) :- legal(player2, fill(coord(1,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,3)),6) :- legal(player2, fill(coord(2,3)),6). does(player2, fill(coord(1,2)),4) :- legal(player2, fill(coord(1,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,1)),6) :- legal(player2, fill(coord(3,1)),6). does(player2, fill(coord(1,2)),4) :- legal(player2, fill(coord(1,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,2)),6) :- legal(player2, fill(coord(3,2)),6). does(player2, fill(coord(1,2)),4) :- legal(player2, fill(coord(1,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,3)),6) :- legal(player2, fill(coord(3,3)),6). does(player2, fill(coord(1,2)),4) :- legal(player2, fill(coord(1,2)),4).}).
+
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,1)),6) :- legal(player2, fill(coord(1,1)),6). does(player2, fill(coord(1,3)),4) :- legal(player2, fill(coord(1,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,2)),6) :- legal(player2, fill(coord(1,2)),6). does(player2, fill(coord(1,3)),4) :- legal(player2, fill(coord(1,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,3)),6) :- legal(player2, fill(coord(1,3)),6). does(player2, fill(coord(1,3)),4) :- legal(player2, fill(coord(1,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,1)),6) :- legal(player2, fill(coord(2,1)),6). does(player2, fill(coord(1,3)),4) :- legal(player2, fill(coord(1,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,2)),6) :- legal(player2, fill(coord(2,2)),6). does(player2, fill(coord(1,3)),4) :- legal(player2, fill(coord(1,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,3)),6) :- legal(player2, fill(coord(2,3)),6). does(player2, fill(coord(1,3)),4) :- legal(player2, fill(coord(1,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,1)),6) :- legal(player2, fill(coord(3,1)),6). does(player2, fill(coord(1,3)),4) :- legal(player2, fill(coord(1,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,2)),6) :- legal(player2, fill(coord(3,2)),6). does(player2, fill(coord(1,3)),4) :- legal(player2, fill(coord(1,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,3)),6) :- legal(player2, fill(coord(3,3)),6). does(player2, fill(coord(1,3)),4) :- legal(player2, fill(coord(1,3)),4).}).
+
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,1)),6) :- legal(player2, fill(coord(1,1)),6). does(player2, fill(coord(2,1)),4) :- legal(player2, fill(coord(2,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,2)),6) :- legal(player2, fill(coord(1,2)),6). does(player2, fill(coord(2,1)),4) :- legal(player2, fill(coord(2,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,3)),6) :- legal(player2, fill(coord(1,3)),6). does(player2, fill(coord(2,1)),4) :- legal(player2, fill(coord(2,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,1)),6) :- legal(player2, fill(coord(2,1)),6). does(player2, fill(coord(2,1)),4) :- legal(player2, fill(coord(2,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,2)),6) :- legal(player2, fill(coord(2,2)),6). does(player2, fill(coord(2,1)),4) :- legal(player2, fill(coord(2,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,3)),6) :- legal(player2, fill(coord(2,3)),6). does(player2, fill(coord(2,1)),4) :- legal(player2, fill(coord(2,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,1)),6) :- legal(player2, fill(coord(3,1)),6). does(player2, fill(coord(2,1)),4) :- legal(player2, fill(coord(2,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,2)),6) :- legal(player2, fill(coord(3,2)),6). does(player2, fill(coord(2,1)),4) :- legal(player2, fill(coord(2,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,3)),6) :- legal(player2, fill(coord(3,3)),6). does(player2, fill(coord(2,1)),4) :- legal(player2, fill(coord(2,1)),4).}).
+
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,1)),6) :- legal(player2, fill(coord(1,1)),6). does(player2, fill(coord(2,2)),4) :- legal(player2, fill(coord(2,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,2)),6) :- legal(player2, fill(coord(1,2)),6). does(player2, fill(coord(2,2)),4) :- legal(player2, fill(coord(2,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,3)),6) :- legal(player2, fill(coord(1,3)),6). does(player2, fill(coord(2,2)),4) :- legal(player2, fill(coord(2,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,1)),6) :- legal(player2, fill(coord(2,1)),6). does(player2, fill(coord(2,2)),4) :- legal(player2, fill(coord(2,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,2)),6) :- legal(player2, fill(coord(2,2)),6). does(player2, fill(coord(2,2)),4) :- legal(player2, fill(coord(2,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,3)),6) :- legal(player2, fill(coord(2,3)),6). does(player2, fill(coord(2,2)),4) :- legal(player2, fill(coord(2,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,1)),6) :- legal(player2, fill(coord(3,1)),6). does(player2, fill(coord(2,2)),4) :- legal(player2, fill(coord(2,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,2)),6) :- legal(player2, fill(coord(3,2)),6). does(player2, fill(coord(2,2)),4) :- legal(player2, fill(coord(2,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,3)),6) :- legal(player2, fill(coord(3,3)),6). does(player2, fill(coord(2,2)),4) :- legal(player2, fill(coord(2,2)),4).}).
+
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,1)),6) :- legal(player2, fill(coord(1,1)),6). does(player2, fill(coord(2,3)),4) :- legal(player2, fill(coord(2,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,2)),6) :- legal(player2, fill(coord(1,2)),6). does(player2, fill(coord(2,3)),4) :- legal(player2, fill(coord(2,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,3)),6) :- legal(player2, fill(coord(1,3)),6). does(player2, fill(coord(2,3)),4) :- legal(player2, fill(coord(2,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,1)),6) :- legal(player2, fill(coord(2,1)),6). does(player2, fill(coord(2,3)),4) :- legal(player2, fill(coord(2,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,2)),6) :- legal(player2, fill(coord(2,2)),6). does(player2, fill(coord(2,3)),4) :- legal(player2, fill(coord(2,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,3)),6) :- legal(player2, fill(coord(2,3)),6). does(player2, fill(coord(2,3)),4) :- legal(player2, fill(coord(2,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,1)),6) :- legal(player2, fill(coord(3,1)),6). does(player2, fill(coord(2,3)),4) :- legal(player2, fill(coord(2,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,2)),6) :- legal(player2, fill(coord(3,2)),6). does(player2, fill(coord(2,3)),4) :- legal(player2, fill(coord(2,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,3)),6) :- legal(player2, fill(coord(3,3)),6). does(player2, fill(coord(2,3)),4) :- legal(player2, fill(coord(2,3)),4).}).
+
+
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,1)),6) :- legal(player2, fill(coord(1,1)),6). does(player2, fill(coord(3,1)),4) :- legal(player2, fill(coord(3,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,2)),6) :- legal(player2, fill(coord(1,2)),6). does(player2, fill(coord(3,1)),4) :- legal(player2, fill(coord(3,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,3)),6) :- legal(player2, fill(coord(1,3)),6). does(player2, fill(coord(3,1)),4) :- legal(player2, fill(coord(3,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,1)),6) :- legal(player2, fill(coord(2,1)),6). does(player2, fill(coord(3,1)),4) :- legal(player2, fill(coord(3,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,2)),6) :- legal(player2, fill(coord(2,2)),6). does(player2, fill(coord(3,1)),4) :- legal(player2, fill(coord(3,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,3)),6) :- legal(player2, fill(coord(2,3)),6). does(player2, fill(coord(3,1)),4) :- legal(player2, fill(coord(3,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,1)),6) :- legal(player2, fill(coord(3,1)),6). does(player2, fill(coord(3,1)),4) :- legal(player2, fill(coord(3,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,2)),6) :- legal(player2, fill(coord(3,2)),6). does(player2, fill(coord(3,1)),4) :- legal(player2, fill(coord(3,1)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,3)),6) :- legal(player2, fill(coord(3,3)),6). does(player2, fill(coord(3,1)),4) :- legal(player2, fill(coord(3,1)),4).}).
+
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,1)),6) :- legal(player2, fill(coord(1,1)),6). does(player2, fill(coord(3,2)),4) :- legal(player2, fill(coord(3,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,2)),6) :- legal(player2, fill(coord(1,2)),6). does(player2, fill(coord(3,2)),4) :- legal(player2, fill(coord(3,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,3)),6) :- legal(player2, fill(coord(1,3)),6). does(player2, fill(coord(3,2)),4) :- legal(player2, fill(coord(3,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,1)),6) :- legal(player2, fill(coord(2,1)),6). does(player2, fill(coord(3,2)),4) :- legal(player2, fill(coord(3,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,2)),6) :- legal(player2, fill(coord(2,2)),6). does(player2, fill(coord(3,2)),4) :- legal(player2, fill(coord(3,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,3)),6) :- legal(player2, fill(coord(2,3)),6). does(player2, fill(coord(3,2)),4) :- legal(player2, fill(coord(3,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,1)),6) :- legal(player2, fill(coord(3,1)),6). does(player2, fill(coord(3,2)),4) :- legal(player2, fill(coord(3,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,2)),6) :- legal(player2, fill(coord(3,2)),6). does(player2, fill(coord(3,2)),4) :- legal(player2, fill(coord(3,2)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,3)),6) :- legal(player2, fill(coord(3,3)),6). does(player2, fill(coord(3,2)),4) :- legal(player2, fill(coord(3,2)),4).}).
+
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,1)),6) :- legal(player2, fill(coord(1,1)),6). does(player2, fill(coord(3,3)),4) :- legal(player2, fill(coord(3,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,2)),6) :- legal(player2, fill(coord(1,2)),6). does(player2, fill(coord(3,3)),4) :- legal(player2, fill(coord(3,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(1,3)),6) :- legal(player2, fill(coord(1,3)),6). does(player2, fill(coord(3,3)),4) :- legal(player2, fill(coord(3,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,1)),6) :- legal(player2, fill(coord(2,1)),6). does(player2, fill(coord(3,3)),4) :- legal(player2, fill(coord(3,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,2)),6) :- legal(player2, fill(coord(2,2)),6). does(player2, fill(coord(3,3)),4) :- legal(player2, fill(coord(3,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(2,3)),6) :- legal(player2, fill(coord(2,3)),6). does(player2, fill(coord(3,3)),4) :- legal(player2, fill(coord(3,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,1)),6) :- legal(player2, fill(coord(3,1)),6). does(player2, fill(coord(3,3)),4) :- legal(player2, fill(coord(3,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,2)),6) :- legal(player2, fill(coord(3,2)),6). does(player2, fill(coord(3,3)),4) :- legal(player2, fill(coord(3,3)),4).}).
+#pos({wins(player1)}, {}, {does(player2, fill(coord(3,3)),6) :- legal(player2, fill(coord(3,3)),6). does(player2, fill(coord(3,3)),4) :- legal(player2, fill(coord(3,3)),4).}).
+
+
+
+#neg({wins(player2)}, {}, {}).
 
 %idees : script python generer hypotheses, weak constraints pour indiquer préférences 
