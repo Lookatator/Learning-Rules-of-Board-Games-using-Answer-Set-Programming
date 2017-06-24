@@ -1,5 +1,10 @@
+import pygame
+from pygame.locals import *
+
+
 class Board:
-    def __init__(self):
+    def __init__(self, window):
+        self.window = window
         self.list_pawns = []
         self.selected_pawn = None
         self.positions = [[0] * 5] * 5
@@ -7,6 +12,7 @@ class Board:
     def add_pawn(self, pawn):
         self.list_pawns += pawn
         self.positions[pawn.pos_x][pawn.pos_y] = pawn.side
+        pawn.draw()
 
     def select(self, pawn):
         self.selected_pawn = pawn
@@ -24,7 +30,15 @@ class Board:
         self.unselect()
 
     def draw_board(self):
-        pass
+        window = pygame.display.set_mode((501, 501))
+        white = (255, 255, 255)
+        for i in range(0, 6):
+            pygame.draw.line(window, white, (100 * i, 0), (100 * i, 500))
+            pygame.draw.line(window, white, (0, 100 * i), (500, 100 * i))
 
-    def draw_pawn(self, pawn):
-        pass
+    def action(self, pos_x, pos_y):
+        for pawn in self.list_pawns:
+            if pawn.pos_x == pos_x and pawn.pos_y == pos_y:
+                self.select(pawn)
+                return
+        self.move_pawn_to(pos_x, pos_y)
