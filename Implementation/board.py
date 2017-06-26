@@ -15,6 +15,7 @@ class Board:
         pawns_p2 = [Pawn(4, i, 2, window) for i in range(0, 5)] + [Pawn(3, 0, 2, window), Pawn(3, 4, 2, window)]
         self.list_pawns = pawns_p1 + pawns_p2
         self.turn = 1
+        self.time = 1
 
     def add_pawn(self, pawn):
         self.list_pawns += pawn
@@ -40,6 +41,7 @@ class Board:
                     if 5 > pos_x >= 0 and 5 > pos_y >= 0:
                         if self.selected_pawn.move_to(pos_x, pos_y):
                             self.turn = 1 + self.turn % 2
+                            self.time += 1
         self.unselect()
 
     def draw_board(self):

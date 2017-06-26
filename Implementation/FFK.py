@@ -38,6 +38,7 @@ while is_open:
                 if are_close(event.pos, [50 + 100 * pos_x, 50 + 100 * pos_y]):
                     board.action(pos_x, pos_y)
                     is_action = True
+                    print board.time
         if not is_action:
             board.unselect()
 
