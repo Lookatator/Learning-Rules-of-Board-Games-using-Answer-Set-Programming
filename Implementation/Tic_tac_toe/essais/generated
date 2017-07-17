@@ -1,0 +1,16 @@
+MyCPlusPlusClassName::MyCPlusPlusClassName()
+{
+}
+
+MyCPlusPlusClassName::~MyCPlusPlusClassName()
+{
+}
+
+MyCPlusPlusClassName::MyCPlusPlusClassName(const MyCPlusPlusClassName& other)
+{
+}
+
+MyCPlusPlusClassName& MyCPlusPlusClassName::operator=(const MyCPlusPlusClassName& other)
+{
+    return *this;
+}

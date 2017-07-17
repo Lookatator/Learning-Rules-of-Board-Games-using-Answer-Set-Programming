@@ -335,8 +335,196 @@ For this, we only need to specify that the program has at least an answer set: \
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Plan}
-\cite{greenwade93}
+\chapter{Implementation}
+
+For the moment, we only have implemented the \textit{tic-tac-toe} and the \textit{Field Field Kono} in python by using \texttt{pygame} (python library for video games).
+%TODO : reference pygame
+\smallskip
+
+The idea would be to learn from the actions performed by a player to train our system by using ILASP. Then we could make him play against this trained system and continue to train it that way.
+
+\section{First Method: maximize the chances of winning}
+%TODO : Change title ?
+
+\subsection{Learning Exception Structure}
+
+Supposing we are at time $T=t$, we want the computer to induce a set of rules $H$ such that:
+\begin{itemize}
+\item There is a move $m$ such that for every answer set $A$ of $B\cup H,\:  does(player1, m, t)\in A$
+\item For every answer set $A$ of $B\cup H$, for all move $m_1$ different from $m$, we have: $does(player1, m_1, t) \notin A$
+\item $H$ also tries to take into account the possible future moves.
+\end{itemize}
+
+To reduce the hypothesis space, it would be interesting to focus only on \textit{exception structures}, which means we want $H$ to be of this form:
+\[H=
+\begin{Bmatrix}
+\texttt{does(player1, move\_p1\_t0\_1, t).}\\
+\texttt{does(player1, move\_p1\_t2\_1, t+2) :- \textcolor{red}{does(player2, move\_p2\_t1\_1, t+1)}.}\\
+\texttt{does(player1, move\_p1\_t2\_2, t+2) :- not \textcolor{red}{does(player2, move\_p2\_t1\_1, t+1)}.} 
+\end{Bmatrix}
+\]
+%TODO : A FAIRE avec le cours de Marek Sergot ???
+In the set above, we will call "\textit{exception rule}" the second rule, and "\textit{general rule}" the third.
+
+\begin{remark}
+ The hypothesis space could also be extended so that it accepts two or more  exception rules.
+\[H=
+\begin{Bmatrix}
+\texttt{does(player1, move\_p1\_t0\_1, t).}\\
+\texttt{does(player1, move\_p1\_t2\_1, t+2) :-} &\texttt{\textcolor{red}{does(player2, move\_p2\_t1\_1, t+1)}.}\\
+\texttt{does(player1, move\_p1\_t2\_2, t+2) :-} &\texttt{\textcolor{blue}{does(player2, move\_p2\_t1\_2, t+1)}.}\\
+\texttt{does(player1, move\_p1\_t2\_3, t+2) :-} &\texttt{not \textcolor{red}{does(player2, move\_p2\_t1\_1, t+1)},}\\ &\texttt{not \textcolor{blue}{does(player2, move\_p2\_t1\_2, t+1)}.} 
+\end{Bmatrix}
+\]
+\end{remark}
+
+%TODO : Deuxième remarque pour expliquer comment prendre en compte ce qu'il se passe à t+4 ?
+
+Moreover, the atoms in the exception rule must appear in the general rule (see the \textcolor{red}{red} and \textcolor{blue}{blue} atoms in the hypotheses above).
+
+\bigskip
+
+%TODO : good version of ILASP ?
+With ILASP 3.1.0 it is possible add "bias constraints" to specify what kind of rule we want to learn. However it is not possible to add constraints on the whole set of rules induced. As a consequence, we cannot say that for every solution $H$ in $ILP_{LAS}(B,S_M,E^+,E^-)$, 
+if there are $move\_p1\_t2\_1$ and $move\_p2\_t1\_1$ such that:
+\\ $\texttt{"does(player1,move\_p1\_t2\_1,t+2) :- \textcolor{red}{does(player2,move\_p2\_t1\_1,t+1)}."}\in H$, 
+then there is $move\_p1\_t2\_2$ such that:\\
+$\texttt{"does(player1,move\_p1\_t2\_2,t+2):- not \textcolor{red}{does(player2,move\_p2\_t1\_1,t+1)}."}\in H$
+
+\bigskip
+
+The solution we used consists in using the ASPAL encoding in ILASP. With this encoding, we can add more flexible constraints for the hypothesis space.
+
+\subsection{Example}
+
+\paragraph{Current State of the Game}
+
+Consider a tic-tac-toe game after the 4 following moves (represented in \ref{fig:ttt_ex}):\newline
+\texttt{does(player1, fill(coord(2,2)),1).\\
+does(player2, fill(coord(1,2)),2).\\
+does(player1, fill(coord(1,1)),3).\\
+does(player2, fill(coord(3,3)),4).}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width = 0.3\hsize]{ttt_example.png}
+\caption{State of a tic-tac-toe game after 4 moves. The green player plays first (he is \texttt{player1}).}
+\label{fig:ttt_ex}
+\end{figure}
+
+Here, we are the green player and we want to find a move such that we are sure to win in three moves.
+
+\paragraph{Hypothesis space}
+
+We use the following mode declaration:
+\[ M=
+\begin{Bmatrix} 
+m1 :& \texttt{modeh(does(player1,\#move,5)).} \\ 
+m2 :& \texttt{modeh(does(player1,\#move,7)).}\\
+m3 :& \texttt{modeb(does(player2,\#move,6)).}\\
+m4 :& \texttt{modeb(not does(player2,\#move,6)).}
+\end{Bmatrix}
+\]
+%TODO : explain how a mode declaration works OR reference to an article to explain it
+
+Moreover, we take the following hypothesis space:
+\[ R_M=
+\begin{Bmatrix}
+\texttt{does(player1, X, 5).} \\ 
+\texttt{does(player1, Z, 7) :-} & \texttt{does(player2, Y, 6).}\\
+\texttt{does(player1, X, 7) :-}  & \texttt{not does(player2, Y, 6).}
+\end{Bmatrix}
+\]
+
+So the top theory that we use for this example is:
+\[ T=
+\begin{Bmatrix}
+\texttt{does(player1, X, 5) :-} & \texttt{legal(player1,X,5), rule((m1),(X)).} \\ 
+
+\texttt{does(player1, Z, 7) :-} & \texttt{legal(player1, Z, 7), legal(player2, Y, 6), }\\ 
+ & \texttt{does(player2, Y, 6), rule((m2,m3,2),(Z,Y)).} \\
+
+\texttt{does(player1, X, 7) :-} & \texttt{legal(player1, X, 7), legal(player2, Y, 6), } \\
+& \texttt{not does(player2, Y, 6), rule((m2,m4,2),(X,Y)).}
+\end{Bmatrix}
+\]
+where we added the predicate \texttt{legal/3} to make the variables safe.
+
+\bigskip
+
+So now the hypothesis we want to learn with ILASP has the following form:
+\[H=
+\begin{Bmatrix}
+\texttt{rule((m1),(\#move\_p1\_t0\_1)).}\\
+\texttt{rule((m2,m3,2),(\#move\_p1\_t2\_1, \#move\_p2\_t1\_1))}.\\
+\texttt{rule((m2,m4,2),(\#move\_p1\_t2\_2, \#move\_p2\_t1\_1))}.
+\end{Bmatrix}
+\]
+
+\bigskip
+
+We want $H$ to contain only one rule of each type: only one rule of the form\\ \texttt{rule((m1),(\#move\_p1\_t0\_1))} and so on... 
+So we add some rules to make them unique:\newline
+\texttt{rule1 :- rule((m1),(fill(coord(X,Y)))).}\\
+\texttt{:- not rule1.}\\
+\texttt{:- rule((m1),(fill(coord(X1,Y1)))), rule((m1),(fill(coord(X2,Y2)))), g(X1, Y1)< g(X2, Y2). }\\
+
+\smallskip
+
+The two first rules make \texttt{rule((m1),(\#move\_p1\_t0\_1))} appear at least once, and the last rule makes it appear at most once. We add similar rules for \texttt{rule((m2,m3,2), (\#move\_p1\_t2\_1, \#move\_p2\_t1\_1))} and \texttt{rule((m2,m4,2), (\#move\_p1\_t2\_2, \#move\_p2\_t1\_1))}.
+
+\bigskip
+
+Also, we added some constraints to reduce the computation time. For instance, if \texttt{rule((m1),(fill(coord(X,Y))))} is true, then \texttt{legal(player1,fill(coord(X,Y)),5)} must be true. So we add the following constraint:\newline
+\texttt{:- rule((m1),(fill(coord(X,Y)))), not legal(player1,fill(coord(X,Y)),5).}
+
+\bigskip
+
+And if \texttt{rule((m2,m4,2),(fill(coord(X,Y)),fill(coord(Z,T))))} and \texttt{not does(player2, fill(coord(Z,T)), 6)} are true, then \texttt{legal(player1, fill(coord(X,Y)),7)} must be true unless \texttt{player2} plays in \texttt{coord(X,Y)} at time 6. Thus, we add the following constraint:\newline
+\texttt{:- rule((m2,m4,2),(fill(coord(X,Y)),fill(coord(Z,T)))), not does(player2, fill(coord(Z,T)), 6),}
+\texttt{ not legal(player1, fill(coord(X,Y)),7).}\newline
+and we add this context-dependent example to the set of positive examples : \newline
+$<<\{\texttt{wins(player2,8)}\},\emptyset>,\\ \{\texttt{:- rule((m2,m4,2),(fill(coord(X,Y)),fill(coord(Z,T)))),} \\ \texttt{not does(player2, fill(coord(X,Y)), 6).}\}>$
+%TODO : change fonts to textt in partial interpretations
+
+\smallskip
+
+With this example, we are sure that there will be at least one answer set where \texttt{player2} plays in \texttt{coord(X,Y)}.
+
+
+\paragraph{Declaring the examples}
+
+First of all, we want the first player to win in two moves all the time. So there is no answer set that does not contain \texttt{wins(player1,8)}. Thus, we take : $E^-=\{<\emptyset,\{\texttt{wins(player1,8)}\}>\}$.
+
+\bigskip
+
+For the positive examples, we only need to take the one given in the previous paragraph. The \texttt{wins(player2,8)} in it is optional but it reduces the computation time from 11 seconds to 1 second.
+
+\paragraph{Evaluation}
+
+%TODO : to complete
+
+\subsection{Finding a move in the middle of a game}
+
+We are only able to look two moves ahead, so we cannot predict how to win a game if we are not very close to the end. It would be a good idea to define what a good state is (or to make ILASP learn it). And after that, it could be possible to choose a state at time $t$ that maximizes the chances of reaching a good state at time $t+2$.
+
+\bigskip
+
+For instance, if we consider the game represented in figure \ref{fig:graph_game}, where \texttt{player1} plays at times $t$ and $t+2$ and \texttt{player2} plays at time $t+1$. 
+
+\smallskip
+
+We want to maximize the probability of reaching a good state at $t+2$. So we choose $a(x)$ such that $\#\{b(y)|legal(b(y))\wedge\:\left( b(y) \implies \exists \:c(z) \:;\: legal(c(z)) \wedge good\_state(state\_c(z)) \right)\}$ is maximal, which is $a(1)$ in this example.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width = 0.8\hsize]{graph_game.png}
+\caption{Desription of a graph game with its states and the actions to perform to go from one state to another. The blue player (that plays at times $t$ and $t+2$) is \texttt{player1}. The states in purple are the good states.}
+\label{fig:graph_game}
+\end{figure}
+
+\section{Second Method: recognize preferred patterns}
+
 
 
 

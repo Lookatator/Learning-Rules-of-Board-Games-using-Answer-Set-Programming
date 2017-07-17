@@ -1,0 +1,16 @@
+{className}::{className}()
+{{
+}}
+
+{className}::~{className}()
+{{
+}}
+
+{className}::{className}(const {className}& other)
+{{
+}}
+
+{className}& {className}::operator=(const {className}& other)
+{{
+    return *this;
+}}
