@@ -118,6 +118,11 @@ terminated(T+1) :- terminated(T), time(T).
 1{does(player1,move_pawn(Pawn,Direction),1) : direction_domain(Direction), belongs_to(Pawn, player1)}1.
 
 does(player1,move_pawn(pawn_p1_6,down_right),1).
+
+diagonal_collision(cell(Coord_1,State_1), cell(Coord_2,State_2), T) :- holds(cell(Coord_1,State_1),T), holds(cell(Coord_2,State_2), T), possible_move(Coord_1,Coord_2), time(T).
+
+has_state(Coord,State,T) :- holds(cell(Coord,State),T), time(T).
+
 %does(player2,move_pawn(pawn_p2_4,up_left), 2).
 
 

@@ -1,0 +1,4 @@
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,2),coord(1,3)),3).
+time(1..4).

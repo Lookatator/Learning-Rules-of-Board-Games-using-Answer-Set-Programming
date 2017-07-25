@@ -452,7 +452,7 @@ where we added the predicate \texttt{legal/3} to make the variables safe.
 
 \bigskip
 
-So now the hypothesis we want to learn with ILASP have the following form:
+So now the hypothesis we want to learn with ILASP has the following form:
 \[H=
 \begin{Bmatrix}
 \texttt{rule((m1),(\#move\_p1\_t0\_1)).}\\
@@ -471,7 +471,7 @@ So we add some rules to make them unique:\newline
 
 \smallskip
 
-The two first rules make \texttt{rule((m1),(\#move\_p1\_t0\_1))} appear at least once, and the last rule make it appear at most once. We add similar rules for \texttt{rule((m2,m3,2), (\#move\_p1\_t2\_1, \#move\_p2\_t1\_1))} and \texttt{rule((m2,m4,2), (\#move\_p1\_t2\_2, \#move\_p2\_t1\_1))}.
+The two first rules make \texttt{rule((m1),(\#move\_p1\_t0\_1))} appear at least once, and the last rule makes it appear at most once. We add similar rules for \texttt{rule((m2,m3,2), (\#move\_p1\_t2\_1, \#move\_p2\_t1\_1))} and \texttt{rule((m2,m4,2), (\#move\_p1\_t2\_2, \#move\_p2\_t1\_1))}.
 
 \bigskip
 
@@ -514,7 +514,7 @@ For instance, if we consider the game represented in figure \ref{fig:graph_game}
 
 \smallskip
 
-We want to maximize the probability of reaching a good state at $t+2$. So we choose $a(x)$ such that $\#\{b(y)|legal(b(y))\wedge\: \exists \:c(z) \:;\: legal(c(z)) \wedge good\_state(state\_c(z)) \}$ is maximal, which is $a(1)$ in this example.
+We want to maximize the probability of reaching a good state at $t+2$. So we choose $a(x)$ such that $\#\{b(y)|legal(b(y))\wedge\:\left( b(y) \implies \exists \:c(z) \:;\: legal(c(z)) \wedge good\_state(state\_c(z)) \right)\}$ is maximal, which is $a(1)$ in this example.
 
 \begin{figure}[h]
 \centering
