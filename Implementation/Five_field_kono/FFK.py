@@ -9,6 +9,8 @@ def are_close(pos1, pos2):
     return np.linalg.norm(np.array(pos1) - np.array(pos2)) < 25
 
 
+
+
 is_open = True
 
 pygame.init()
@@ -24,12 +26,12 @@ while is_open:
     for event in pygame.event.get():
         if event.type == QUIT:
             is_open = False
-#     if event.type == MOUSEBUTTONDOWN and event.button == 1 and event.pos[1] < 100 and np.linalg.norm(
-#                     np.array(event.pos) - np.array([50, 50])):
-#         pygame.draw.circle(fenetre, (0, 0, 0), (50, 50), 25, 0)
-#         pygame.draw.circle(fenetre, (0, 255, 0), (50, 100), 25, 0)
-#         pygame.display.flip()
-#
+        #     if event.type == MOUSEBUTTONDOWN and event.button == 1 and event.pos[1] < 100 and np.linalg.norm(
+        #                     np.array(event.pos) - np.array([50, 50])):
+        #         pygame.draw.circle(fenetre, (0, 0, 0), (50, 50), 25, 0)
+        #         pygame.draw.circle(fenetre, (0, 255, 0), (50, 100), 25, 0)
+        #         pygame.display.flip()
+        #
 
     if event.type == MOUSEBUTTONDOWN and event.button == 1:
         is_action = False

@@ -1,7 +1,7 @@
 import pygame
-from pygame.locals import *
 
 from pawn_FFK import Pawn
+import subprocess
 
 
 class Board:
@@ -16,6 +16,12 @@ class Board:
         self.list_pawns = pawns_p1 + pawns_p2
         self.turn = 1
         self.time = 1
+        self.count_actions = 0
+        with open("game_actions.txt", "w") as game_actions:
+            game_actions.write("time(1).\n")
+            game_actions.write("#show does(player1,move(Coord_1,Coord_2),1) : does(player1,move(Coord_1,Coord_2),1).")
+        with open("positive_examples.las", "w") as positive_examples:
+            pass
 
     def add_pawn(self, pawn):
         self.list_pawns += [pawn]
@@ -42,16 +48,9 @@ class Board:
                         previous_pos_x = self.selected_pawn.pos_x
                         previous_pos_y = self.selected_pawn.pos_y
                         if self.selected_pawn.move_to(pos_x, pos_y):
-                            action_pattern = "does(player{player}, move(coord({previous_pos_x},{previous_pos_y})," \
-                                             "coord({pos_x},{pos_y})),{time})."
-                            action_str = action_pattern.format(player=self.turn,
-                                                               previous_pos_x=previous_pos_x,
-                                                               previous_pos_y=previous_pos_y,
-                                                               pos_x=pos_x,
-                                                               pos_y=pos_y,
-                                                               time=self.time)
-
-                            save_action(action_str,self.time)
+                            if self.turn == 1:
+                                self.save_preferences(previous_pos_x, previous_pos_y, pos_x, pos_y)
+                            self.save_action(previous_pos_x, previous_pos_y, pos_x, pos_y)
                             self.turn = 1 + self.turn % 2
                             self.time += 1
         self.unselect()
@@ -89,18 +88,72 @@ class Board:
                     return False
         return True
 
+    def save_action(self, previous_pos_x, previous_pos_y, pos_x, pos_y):
+        action_pattern = "does(player{player}, move(coord({previous_pos_x},{previous_pos_y})," \
+                         "coord({pos_x},{pos_y})),{time})."
+        action_str = action_pattern.format(player=self.turn,
+                                           previous_pos_x=previous_pos_x,
+                                           previous_pos_y=previous_pos_y,
+                                           pos_x=pos_x,
+                                           pos_y=pos_y,
+                                           time=self.time)
+
+        del_last_line()
+        del_last_line()
+        with open("game_actions.txt", "a") as game_actions:
+            game_actions.write(action_str + "\n")
+            time_pattern = "time(1..{time})."
+            time_str = time_pattern.format(time=self.time + 1)
+            game_actions.write(time_str + "\n")
+            show_does_pattern = "#show does(player1,move(Coord_1,Coord_2),{time}) : " \
+                                "does(player1,move(Coord_1,Coord_2),{time})."
+            show_does_str = show_does_pattern.format(time=self.time + 1)
+            game_actions.write(show_does_str + "\n")
+
+    def save_preferences(self, previous_pos_x, previous_pos_y, pos_x, pos_y):
+        possible_actions = ''
+        selected_action = 'does(player1,move(coord({previous_pos_x},{previous_pos_y}),coord({pos_x},{pos_y})),{time})'
+        selected_action = selected_action.format(previous_pos_x=previous_pos_x,
+                                                 previous_pos_y=previous_pos_y,
+                                                 pos_x=pos_x,
+                                                 pos_y=pos_y,
+                                                 time=self.time)
+        index_selected_action = -1
+        try:
+            possible_actions = subprocess.check_output(['clingo', '-n 0', '--verbose=0', 'kono.lp', 'game_actions.txt'])
+        except subprocess.CalledProcessError as e:
+            possible_actions = e.output
+        with open('game_actions.txt', 'r') as game_action:
+            game_action_description = ''.join(game_action.readlines()[:-1])
+
+        possible_actions = possible_actions.replace('SATISFIABLE\n', '')
+        possible_actions = possible_actions.replace('does', '#pos({{does')
+        possible_actions = possible_actions.replace(')\n', ')}},{{}},{{{game_action_description}}}).\n')
+        split_possible_actions = possible_actions.split('\n')
+
+        for count in range(len(split_possible_actions)):
+            if split_possible_actions[count].startswith('#pos({{' + selected_action):
+                index_selected_action = count
+            split_possible_actions[count] = split_possible_actions[count].replace('#pos(',
+                                                                                  '#pos(pos' + str(count + self.count_actions) + ',')
+            print str(count) + split_possible_actions[count]
+
+        possible_actions = '\n'.join(split_possible_actions)
+        possible_actions = possible_actions.format(game_action_description='\n' + game_action_description)
+
+        with open("positive_examples.las", "a") as positive_examples:
+            positive_examples.write(possible_actions)
+            for count in range(len(split_possible_actions)):
+                ordering_template = '#brave_ordering(ord{count}@1, pos{index_selected_action}, pos{count}).'
+                if count != index_selected_action and split_possible_actions[count].startswith('#'):
+                    positive_examples.write(ordering_template.format(count=count + self.count_actions,
+                                                                     index_selected_action=index_selected_action + self.count_actions)
+                                            + '\n')
+        self.count_actions += len(split_possible_actions)
+
 
 def del_last_line():
     with open("game_actions.txt", "r") as game_actions:
         game_actions_str = ''.join(game_actions.readlines()[:-1])
     with open("game_actions.txt", "w") as game_actions:
         game_actions.write(game_actions_str)
-
-
-def save_action(action_str, current_time):
-    del_last_line()
-    with open("game_actions.txt", "a") as game_actions:
-        game_actions.write(action_str+"\n")
-        time_pattern = "time(1..{time})."
-        time_str = time_pattern.format(time=current_time+1)
-        game_actions.write(time_str+"\n")
