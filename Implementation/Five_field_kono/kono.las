@@ -237,7 +237,6 @@ time(1).
 #brave_ordering(ord4@1, pos6, pos4).
 #brave_ordering(ord5@1, pos6, pos5).
 #brave_ordering(ord7@1, pos6, pos7).
-
 #pos(pos9,{does(player1,move(coord(2,1),coord(1,0)),3)},{},{
 does(player1, move(coord(1,0),coord(2,1)),1).
 does(player2, move(coord(4,1),coord(3,2)),2).
@@ -288,15 +287,15 @@ does(player1, move(coord(1,0),coord(2,1)),1).
 does(player2, move(coord(4,1),coord(3,2)),2).
 time(1..3).
 }).
-#brave_ordering(ord9@1, pos12, pos9).
-#brave_ordering(ord10@1, pos12, pos10).
-#brave_ordering(ord11@1, pos12, pos11).
-#brave_ordering(ord13@1, pos12, pos13).
-#brave_ordering(ord14@1, pos12, pos14).
-#brave_ordering(ord15@1, pos12, pos15).
-#brave_ordering(ord16@1, pos12, pos16).
-#brave_ordering(ord17@1, pos12, pos17).
-#brave_ordering(ord18@1, pos12, pos18).
+#brave_ordering(ord9@1, pos18, pos9).
+#brave_ordering(ord10@1, pos18, pos10).
+#brave_ordering(ord11@1, pos18, pos11).
+#brave_ordering(ord12@1, pos18, pos12).
+#brave_ordering(ord13@1, pos18, pos13).
+#brave_ordering(ord14@1, pos18, pos14).
+#brave_ordering(ord15@1, pos18, pos15).
+#brave_ordering(ord16@1, pos18, pos16).
+#brave_ordering(ord17@1, pos18, pos17).
 
 #modeo(diagonal_collision(const(direction_1), const(state_1), var(c_1), var(c_2), const(t)),(positive)).
 #modeo(adjacent(const(direction_2), const(state_2), var(c_1), var(c_2), const(t)),(positive)).
