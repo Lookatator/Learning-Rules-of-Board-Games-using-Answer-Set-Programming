@@ -9,14 +9,21 @@ def are_close(pos1, pos2):
     return np.linalg.norm(np.array(pos1) - np.array(pos2)) < 25
 
 
-
-
 is_open = True
 
 pygame.init()
-window = pygame.display.set_mode((501, 501))
+window = pygame.display.set_mode((501, 601))
 
 board = Board(window)
+
+pygame.draw.rect(window, (0, 128, 255), pygame.Rect(100, 525, 100, 50))
+pygame.draw.rect(window, (255, 0, 128), pygame.Rect(300, 525, 100, 50))
+font = pygame.font.SysFont("comicsansms", 22)
+text = font.render("Other Move", True, (0, 0, 0))
+window.blit(text, (110, 540))
+text = font.render("Restart", True, (0, 0, 0))
+window.blit(text, (320, 540))
+pygame.display.flip()
 
 #
 # for pawn in pawns_p1 + pawns_p2:
@@ -26,12 +33,12 @@ while is_open:
     for event in pygame.event.get():
         if event.type == QUIT:
             is_open = False
-        #     if event.type == MOUSEBUTTONDOWN and event.button == 1 and event.pos[1] < 100 and np.linalg.norm(
-        #                     np.array(event.pos) - np.array([50, 50])):
-        #         pygame.draw.circle(fenetre, (0, 0, 0), (50, 50), 25, 0)
-        #         pygame.draw.circle(fenetre, (0, 255, 0), (50, 100), 25, 0)
-        #         pygame.display.flip()
-        #
+            #     if event.type == MOUSEBUTTONDOWN and event.button == 1 and event.pos[1] < 100 and np.linalg.norm(
+            #                     np.array(event.pos) - np.array([50, 50])):
+            #         pygame.draw.circle(fenetre, (0, 0, 0), (50, 50), 25, 0)
+            #         pygame.draw.circle(fenetre, (0, 255, 0), (50, 100), 25, 0)
+            #         pygame.display.flip()
+            #
 
     if event.type == MOUSEBUTTONDOWN and event.button == 1:
         is_action = False
@@ -43,7 +50,11 @@ while is_open:
                     print board.time
         if not is_action:
             board.unselect()
-
+        if 100 < event.pos[0] < 200 and 525 < event.pos[1] < 575:
+            # board.perform_other_action()
+            board.undo()
+        if 300 < event.pos[0] < 400 and 525 < event.pos[1] < 575:
+            board.restart()
     if board.wins_p1():
         print "player 1 wins"
         is_open = False

@@ -181,6 +181,7 @@ does(player2,move_pawn(pawn_p2_4,down_left),T);
 does(player2,move_pawn(pawn_p2_5,down_left),T);
 does(player2,move_pawn(pawn_p2_6,down_left),T);
 does(player2,move_pawn(pawn_p2_7,down_left),T)}1 :- time(T), not terminated(T).
+
 terminated(T) :- terminal(T).
 terminated(T+1) :- terminated(T), time(T).
 
@@ -206,100 +207,407 @@ adjacent(bottom, red, cell(coord(X,Y),red), cell(coord(X1,Y1),red), T) :- holds(
 
 has_state(Coord,State,T) :- holds(cell(Coord,State),T).
 
-#pos(pos0,{does(player1,move(coord(0,0),coord(1,1)),1)},{},{
-time(1).
-}).
-#pos(pos1,{does(player1,move(coord(0,1),coord(1,2)),1)},{},{
-time(1).
-}).
-#pos(pos2,{does(player1,move(coord(0,2),coord(1,1)),1)},{},{
-time(1).
-}).
-#pos(pos3,{does(player1,move(coord(0,2),coord(1,3)),1)},{},{
-time(1).
-}).
-#pos(pos4,{does(player1,move(coord(0,3),coord(1,2)),1)},{},{
-time(1).
-}).
-#pos(pos5,{does(player1,move(coord(0,4),coord(1,3)),1)},{},{
-time(1).
-}).
-#pos(pos6,{does(player1,move(coord(1,0),coord(2,1)),1)},{},{
-time(1).
-}).
-#pos(pos7,{does(player1,move(coord(1,4),coord(2,3)),1)},{},{
-time(1).
-}).
-#brave_ordering(ord0@1, pos6, pos0).
-#brave_ordering(ord1@1, pos6, pos1).
-#brave_ordering(ord2@1, pos6, pos2).
-#brave_ordering(ord3@1, pos6, pos3).
-#brave_ordering(ord4@1, pos6, pos4).
-#brave_ordering(ord5@1, pos6, pos5).
-#brave_ordering(ord7@1, pos6, pos7).
 
-#pos(pos9,{does(player1,move(coord(2,1),coord(1,0)),3)},{},{
+
+
+#pos(pos10,{does(player1,move(coord(2,1),coord(3,2)),3)},{},{
 does(player1, move(coord(1,0),coord(2,1)),1).
-does(player2, move(coord(4,1),coord(3,2)),2).
+does(player2, move(coord(4,0),coord(3,1)),2).
 time(1..3).
 }).
-#pos(pos10,{does(player1,move(coord(2,1),coord(1,2)),3)},{},{
+#pos(pos11,{does(player1,move(coord(2,1),coord(1,2)),3)},{},{
 does(player1, move(coord(1,0),coord(2,1)),1).
-does(player2, move(coord(4,1),coord(3,2)),2).
+does(player2, move(coord(4,0),coord(3,1)),2).
 time(1..3).
 }).
-#pos(pos11,{does(player1,move(coord(0,1),coord(1,0)),3)},{},{
+
+
+#pos(pos14,{does(player1,move(coord(0,0),coord(1,1)),3)},{},{
 does(player1, move(coord(1,0),coord(2,1)),1).
-does(player2, move(coord(4,1),coord(3,2)),2).
+does(player2, move(coord(4,0),coord(3,1)),2).
 time(1..3).
 }).
-#pos(pos12,{does(player1,move(coord(1,4),coord(2,3)),3)},{},{
+#pos(pos15,{does(player1,move(coord(0,3),coord(1,2)),3)},{},{
 does(player1, move(coord(1,0),coord(2,1)),1).
-does(player2, move(coord(4,1),coord(3,2)),2).
+does(player2, move(coord(4,0),coord(3,1)),2).
 time(1..3).
 }).
-#pos(pos13,{does(player1,move(coord(0,3),coord(1,2)),3)},{},{
+#pos(pos16,{does(player1,move(coord(0,1),coord(1,2)),3)},{},{
 does(player1, move(coord(1,0),coord(2,1)),1).
-does(player2, move(coord(4,1),coord(3,2)),2).
+does(player2, move(coord(4,0),coord(3,1)),2).
 time(1..3).
 }).
-#pos(pos14,{does(player1,move(coord(0,4),coord(1,3)),3)},{},{
-does(player1, move(coord(1,0),coord(2,1)),1).
-does(player2, move(coord(4,1),coord(3,2)),2).
-time(1..3).
-}).
-#pos(pos15,{does(player1,move(coord(0,1),coord(1,2)),3)},{},{
-does(player1, move(coord(1,0),coord(2,1)),1).
-does(player2, move(coord(4,1),coord(3,2)),2).
-time(1..3).
-}).
-#pos(pos16,{does(player1,move(coord(0,0),coord(1,1)),3)},{},{
-does(player1, move(coord(1,0),coord(2,1)),1).
-does(player2, move(coord(4,1),coord(3,2)),2).
-time(1..3).
-}).
-#pos(pos17,{does(player1,move(coord(0,2),coord(1,1)),3)},{},{
-does(player1, move(coord(1,0),coord(2,1)),1).
-does(player2, move(coord(4,1),coord(3,2)),2).
-time(1..3).
-}).
+
 #pos(pos18,{does(player1,move(coord(0,2),coord(1,3)),3)},{},{
 does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+time(1..3).
+}).
+
+#brave_ordering(ord10@1, pos15, pos10).
+#brave_ordering(ord11@1, pos15, pos11).
+#brave_ordering(ord14@1, pos15, pos14).
+#brave_ordering(ord16@1, pos15, pos16).
+#brave_ordering(ord18@1, pos15, pos18).
+
+#pos(pos21,{does(player1,move(coord(0,4),coord(1,3)),5)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+time(1..5).
+}).
+
+#pos(pos23,{does(player1,move(coord(0,0),coord(1,1)),5)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+time(1..5).
+}).
+
+#pos(pos25,{does(player1,move(coord(0,2),coord(1,3)),5)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+time(1..5).
+}).
+#pos(pos26,{does(player1,move(coord(2,1),coord(3,2)),5)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+time(1..5).
+}).
+
+#pos(pos28,{does(player1,move(coord(1,2),coord(2,3)),5)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+time(1..5).
+}).
+#pos(pos29,{does(player1,move(coord(1,4),coord(0,3)),5)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+time(1..5).
+}).
+#pos(pos30,{does(player1,move(coord(2,1),coord(1,0)),5)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+time(1..5).
+}).
+#pos(pos31,{does(player1,move(coord(1,2),coord(0,3)),5)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+time(1..5).
+}).
+#brave_ordering(ord23@1, pos21, pos23).
+#brave_ordering(ord25@1, pos21, pos25).
+#brave_ordering(ord26@1, pos21, pos26).
+#brave_ordering(ord28@1, pos21, pos28).
+#brave_ordering(ord29@1, pos21, pos29).
+#brave_ordering(ord30@1, pos21, pos30).
+#brave_ordering(ord31@1, pos21, pos31).
+
+
+#pos(pos34,{does(player1,move(coord(0,2),coord(1,1)),7)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+does(player1, move(coord(0,4),coord(1,3)),5).
+does(player2, move(coord(4,1),coord(3,2)),6).
+time(1..7).
+}).
+
+#pos(pos36,{does(player1,move(coord(1,4),coord(2,3)),7)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+does(player1, move(coord(0,4),coord(1,3)),5).
+does(player2, move(coord(4,1),coord(3,2)),6).
+time(1..7).
+}).
+#pos(pos37,{does(player1,move(coord(1,2),coord(2,3)),7)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+does(player1, move(coord(0,4),coord(1,3)),5).
+does(player2, move(coord(4,1),coord(3,2)),6).
+time(1..7).
+}).
+#pos(pos38,{does(player1,move(coord(1,3),coord(2,2)),7)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+does(player1, move(coord(0,4),coord(1,3)),5).
+does(player2, move(coord(4,1),coord(3,2)),6).
+time(1..7).
+}).
+#pos(pos39,{does(player1,move(coord(1,2),coord(0,3)),7)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+does(player1, move(coord(0,4),coord(1,3)),5).
+does(player2, move(coord(4,1),coord(3,2)),6).
+time(1..7).
+}).
+#pos(pos40,{does(player1,move(coord(1,3),coord(0,4)),7)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+does(player1, move(coord(0,4),coord(1,3)),5).
+does(player2, move(coord(4,1),coord(3,2)),6).
+time(1..7).
+}).
+#pos(pos41,{does(player1,move(coord(0,1),coord(1,0)),7)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+does(player1, move(coord(0,4),coord(1,3)),5).
+does(player2, move(coord(4,1),coord(3,2)),6).
+time(1..7).
+}).
+#pos(pos42,{does(player1,move(coord(2,1),coord(1,0)),7)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+does(player1, move(coord(0,4),coord(1,3)),5).
+does(player2, move(coord(4,1),coord(3,2)),6).
+time(1..7).
+}).
+#pos(pos43,{does(player1,move(coord(1,4),coord(0,3)),7)},{},{
+does(player1, move(coord(1,0),coord(2,1)),1).
+does(player2, move(coord(4,0),coord(3,1)),2).
+does(player1, move(coord(0,3),coord(1,2)),3).
+does(player2, move(coord(4,2),coord(3,3)),4).
+does(player1, move(coord(0,4),coord(1,3)),5).
+does(player2, move(coord(4,1),coord(3,2)),6).
+time(1..7).
+}).
+#brave_ordering(ord34@1, pos37, pos34).
+#brave_ordering(ord36@1, pos37, pos36).
+#brave_ordering(ord38@1, pos37, pos38).
+#brave_ordering(ord39@1, pos37, pos39).
+#brave_ordering(ord40@1, pos37, pos40).
+#brave_ordering(ord41@1, pos37, pos41).
+#brave_ordering(ord42@1, pos37, pos42).
+#brave_ordering(ord43@1, pos37, pos43).
+
+#pos(poso9,{does(player1,move(coord(2,3),coord(1,2)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
 does(player2, move(coord(4,1),coord(3,2)),2).
 time(1..3).
 }).
-#brave_ordering(ord9@1, pos12, pos9).
-#brave_ordering(ord10@1, pos12, pos10).
-#brave_ordering(ord11@1, pos12, pos11).
-#brave_ordering(ord13@1, pos12, pos13).
-#brave_ordering(ord14@1, pos12, pos14).
-#brave_ordering(ord15@1, pos12, pos15).
-#brave_ordering(ord16@1, pos12, pos16).
-#brave_ordering(ord17@1, pos12, pos17).
-#brave_ordering(ord18@1, pos12, pos18).
+#pos(poso10,{does(player1,move(coord(2,3),coord(1,4)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+time(1..3).
+}).
+
+#pos(poso12,{does(player1,move(coord(0,1),coord(1,2)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+time(1..3).
+}).
+
+#pos(poso14,{does(player1,move(coord(0,4),coord(1,3)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+time(1..3).
+}).
+#pos(poso15,{does(player1,move(coord(0,3),coord(1,2)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+time(1..3).
+}).
+
+#pos(poso17,{does(player1,move(coord(0,2),coord(1,1)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+time(1..3).
+}).
+
+#brave_ordering(ordo9@1, poso12, poso9).
+#brave_ordering(ordo10@1, poso12, poso10).
+#brave_ordering(ordo14@1, poso12, poso14).
+#brave_ordering(ordo15@1, poso12, poso15).
+#brave_ordering(ordo17@1, poso12, poso17).
 
 
-#modeo(does(const(player), move_pawn(var(pawn), const(direction)),var(t)),(positive)).
+#pos(poso21,{does(player1,move(coord(2,3),coord(1,4)),5)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+time(1..5).
+}).
+#pos(poso22,{does(player1,move(coord(1,0),coord(0,1)),5)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+time(1..5).
+}).
+#pos(poso23,{does(player1,move(coord(0,2),coord(1,1)),5)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+time(1..5).
+}).
+#pos(poso24,{does(player1,move(coord(0,4),coord(1,3)),5)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+time(1..5).
+}).
+#pos(poso25,{does(player1,move(coord(1,2),coord(2,1)),5)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+time(1..5).
+}).
+#pos(poso26,{does(player1,move(coord(0,0),coord(1,1)),5)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+time(1..5).
+}).
+
+#pos(poso28,{does(player1,move(coord(1,2),coord(0,1)),5)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+time(1..5).
+}).
+
+#brave_ordering(ordo21@1, poso26, poso21).
+#brave_ordering(ordo22@1, poso26, poso22).
+#brave_ordering(ordo23@1, poso26, poso23).
+#brave_ordering(ordo24@1, poso26, poso24).
+#brave_ordering(ordo25@1, poso26, poso25).
+#brave_ordering(ordo28@1, poso26, poso28).
+#pos(poso31,{does(player1,move(coord(1,2),coord(0,1)),7)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+does(player1, move(coord(0,0),coord(1,1)),5).
+does(player2, move(coord(4,0),coord(3,1)),6).
+time(1..7).
+}).
+#pos(poso32,{does(player1,move(coord(0,4),coord(1,3)),7)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+does(player1, move(coord(0,0),coord(1,1)),5).
+does(player2, move(coord(4,0),coord(3,1)),6).
+time(1..7).
+}).
+
+#pos(poso34,{does(player1,move(coord(1,1),coord(2,2)),7)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+does(player1, move(coord(0,0),coord(1,1)),5).
+does(player2, move(coord(4,0),coord(3,1)),6).
+time(1..7).
+}).
+#pos(pos35,{does(player1,move(coord(0,2),coord(1,3)),7)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+does(player1, move(coord(0,0),coord(1,1)),5).
+does(player2, move(coord(4,0),coord(3,1)),6).
+time(1..7).
+}).
+
+#pos(poso37,{does(player1,move(coord(1,0),coord(2,1)),7)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+does(player1, move(coord(0,0),coord(1,1)),5).
+does(player2, move(coord(4,0),coord(3,1)),6).
+time(1..7).
+}).
+#pos(poso38,{does(player1,move(coord(0,3),coord(1,4)),7)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+does(player1, move(coord(0,0),coord(1,1)),5).
+does(player2, move(coord(4,0),coord(3,1)),6).
+time(1..7).
+}).
+#pos(poso39,{does(player1,move(coord(2,3),coord(1,4)),7)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+does(player1, move(coord(0,0),coord(1,1)),5).
+does(player2, move(coord(4,0),coord(3,1)),6).
+time(1..7).
+}).
+#pos(poso40,{does(player1,move(coord(1,0),coord(0,1)),7)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+does(player1, move(coord(0,0),coord(1,1)),5).
+does(player2, move(coord(4,0),coord(3,1)),6).
+time(1..7).
+}).
+#pos(poso41,{does(player1,move(coord(1,1),coord(0,0)),7)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,1),coord(3,2)),2).
+does(player1, move(coord(0,1),coord(1,2)),3).
+does(player2, move(coord(4,4),coord(3,3)),4).
+does(player1, move(coord(0,0),coord(1,1)),5).
+does(player2, move(coord(4,0),coord(3,1)),6).
+time(1..7).
+}).
+#brave_ordering(ordo31@1, poso32, poso31).
+#brave_ordering(ordo34@1, poso32, poso34).
+#brave_ordering(ordo35@1, poso32, poso35).
+#brave_ordering(ordo37@1, poso32, poso37).
+#brave_ordering(ordo38@1, poso32, poso38).
+#brave_ordering(ordo39@1, poso32, poso39).
+#brave_ordering(ordo40@1, poso32, poso40).
+#brave_ordering(ordo41@1, poso32, poso41).
+
+
+
+
+naf_does(Player, move_pawn(Pawn, Direction), T) :- not does(Player, move_pawn(Pawn, Direction), T),
+                                                   time(T), direction_domain(Direction), belongs_to(Pawn, Player),
+                                                   role(Player, Color).
+
+#modeo(1, does(const(player), move_pawn(var(pawn), const(direction)),var(t)),(positive)).
+
 
 #constant(direction, up_right).
 #constant(direction, down_right).
@@ -308,6 +616,6 @@ time(1..3).
 
 #constant(player,player1).
 
-#weight(-1).
 #maxv(2).
 #maxp(1).
+#weight(1).

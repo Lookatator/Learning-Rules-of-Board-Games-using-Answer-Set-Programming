@@ -2,13 +2,15 @@ import pygame
 
 from pawn_FFK import Pawn
 import subprocess
+import numpy as np
 
 
 class Board:
     def __init__(self, window):
         self.window = window
-        self.list_pawns = []
         self.selected_pawn = None
+        self.last_moved_pawn = None
+        self.list_actions = np.array([]).reshape(0, 2, 2).astype(int)
         self.positions = [[0] * 5] * 5
         self.draw_board()
         pawns_p1 = [Pawn(0, i, 1, window) for i in range(0, 5)] + [Pawn(1, 0, 1, window), Pawn(1, 4, 1, window)]
@@ -17,11 +19,30 @@ class Board:
         self.turn = 1
         self.time = 1
         self.count_actions = 0
+        self.count_orders = 0
         with open("game_actions.txt", "w") as game_actions:
             game_actions.write("time(1).\n")
             game_actions.write("#show does(player1,move(Coord_1,Coord_2),1) : does(player1,move(Coord_1,Coord_2),1).")
         with open("positive_examples.las", "w") as positive_examples:
             pass
+
+    def restart(self):
+        self.selected_pawn = None
+        self.last_moved_pawn = None
+        self.list_actions = np.array([]).reshape(0, 2, 2).astype(int)
+        self.positions = [[0] * 5] * 5
+        self.draw_board()
+        for pawn in self.list_pawns:
+            pawn.undraw()
+        pawns_p1 = [Pawn(0, i, 1, self.window) for i in range(0, 5)] + [Pawn(1, 0, 1, self.window), Pawn(1, 4, 1, self.window)]
+        pawns_p2 = [Pawn(4, i, 2, self.window) for i in range(0, 5)] + [Pawn(3, 0, 2, self.window), Pawn(3, 4, 2, self.window)]
+        self.list_pawns = pawns_p1 + pawns_p2
+        self.turn = 1
+        self.time = 1
+        with open("game_actions.txt", "w") as game_actions:
+            game_actions.write("time(1).\n")
+            game_actions.write("#show does(player1,move(Coord_1,Coord_2),1) : does(player1,move(Coord_1,Coord_2),1).")
+
 
     def add_pawn(self, pawn):
         self.list_pawns += [pawn]
@@ -48,15 +69,31 @@ class Board:
                         previous_pos_x = self.selected_pawn.pos_x
                         previous_pos_y = self.selected_pawn.pos_y
                         if self.selected_pawn.move_to(pos_x, pos_y):
+                            if self.turn == 2:
+                                self.time -= 1
+                                self.turn = 1
+                                self.save_preferences()
+                                self.save_action(self.list_actions[0, 0, 0], self.list_actions[0, 0, 1],
+                                                 self.list_actions[0, 1, 0], self.list_actions[0, 1, 1])
+                                self.time += 1
+                                self.turn = 2
+                                self.save_action(previous_pos_x, previous_pos_y, pos_x, pos_y)
+
+                                self.list_actions = np.array([[[]]]).reshape(0, 2, 2)
+                                print "BOUH"
+
                             if self.turn == 1:
-                                self.save_preferences(previous_pos_x, previous_pos_y, pos_x, pos_y)
-                            self.save_action(previous_pos_x, previous_pos_y, pos_x, pos_y)
+                                self.list_actions = np.append([[[previous_pos_x, previous_pos_y],
+                                                                [pos_x, pos_y]]],
+                                                              self.list_actions, axis=0).astype(int)
+                                print(self.list_actions)
+                                # self.save_preferences(previous_pos_x, previous_pos_y, pos_x, pos_y)
                             self.turn = 1 + self.turn % 2
                             self.time += 1
+                            self.last_moved_pawn = self.selected_pawn
         self.unselect()
 
     def draw_board(self):
-
         white = (255, 255, 255)
         for i in range(0, 6):
             pygame.draw.line(self.window, white, (100 * i, 0), (100 * i, 500))
@@ -110,46 +147,69 @@ class Board:
             show_does_str = show_does_pattern.format(time=self.time + 1)
             game_actions.write(show_does_str + "\n")
 
-    def save_preferences(self, previous_pos_x, previous_pos_y, pos_x, pos_y):
+    def save_preferences(self):
         possible_actions = ''
-        selected_action = 'does(player1,move(coord({previous_pos_x},{previous_pos_y}),coord({pos_x},{pos_y})),{time})'
-        selected_action = selected_action.format(previous_pos_x=previous_pos_x,
-                                                 previous_pos_y=previous_pos_y,
-                                                 pos_x=pos_x,
-                                                 pos_y=pos_y,
-                                                 time=self.time)
-        index_selected_action = -1
-        try:
-            possible_actions = subprocess.check_output(['clingo', '-n 0', '--verbose=0', 'kono.lp', 'game_actions.txt'])
-        except subprocess.CalledProcessError as e:
-            possible_actions = e.output
-        with open('game_actions.txt', 'r') as game_action:
-            game_action_description = ''.join(game_action.readlines()[:-1])
+        split_possible_actions = ''
+        list_index_actions = np.array([]).astype(int)
+        for m in self.list_actions:
+            previous_pos_x = m[0, 0]
+            previous_pos_y = m[0, 1]
+            pos_x = m[1, 0]
+            pos_y = m[1, 1]
 
-        possible_actions = possible_actions.replace('SATISFIABLE\n', '')
-        possible_actions = possible_actions.replace('does', '#pos({{does')
-        possible_actions = possible_actions.replace(')\n', ')}},{{}},{{{game_action_description}}}).\n')
-        split_possible_actions = possible_actions.split('\n')
+            selected_action = 'does(player1,move(coord({previous_pos_x},{previous_pos_y}),coord({pos_x},{pos_y})),{time})'
+            selected_action = selected_action.format(previous_pos_x=previous_pos_x,
+                                                     previous_pos_y=previous_pos_y,
+                                                     pos_x=pos_x,
+                                                     pos_y=pos_y,
+                                                     time=self.time)
+            try:
+                possible_actions = subprocess.check_output(
+                    ['clingo', '-n 0', '--verbose=0', 'kono.lp', 'game_actions.txt'])
+            except subprocess.CalledProcessError as e:
+                possible_actions = e.output
+            with open('game_actions.txt', 'r') as game_action:
+                game_action_description = ''.join(game_action.readlines()[:-1])
 
-        for count in range(len(split_possible_actions)):
-            if split_possible_actions[count].startswith('#pos({{' + selected_action):
-                index_selected_action = count
-            split_possible_actions[count] = split_possible_actions[count].replace('#pos(',
-                                                                                  '#pos(pos' + str(count + self.count_actions) + ',')
-            print str(count) + split_possible_actions[count]
+            possible_actions = possible_actions.replace('SATISFIABLE\n', '')
+            possible_actions = possible_actions.replace('does', '#pos({{does')
+            possible_actions = possible_actions.replace(')\n', ')}},{{}},{{{game_action_description}}}).\n')
+            split_possible_actions = possible_actions.split('\n')
 
-        possible_actions = '\n'.join(split_possible_actions)
-        possible_actions = possible_actions.format(game_action_description='\n' + game_action_description)
+            for count in range(len(split_possible_actions)):
+                if split_possible_actions[count].startswith('#pos({{' + selected_action):
+                    # index_selected_action = count
+                    list_index_actions = np.append(list_index_actions, [count])
+                    print list_index_actions
+                split_possible_actions[count] = split_possible_actions[count].replace('#pos(',
+                                                                                      '#pos(pos' + str(
+                                                                                          count + self.count_actions) + ',')
+                print str(count) + split_possible_actions[count]
+
+            possible_actions = '\n'.join(split_possible_actions)
+            possible_actions = possible_actions.format(game_action_description='\n' + game_action_description)
 
         with open("positive_examples.las", "a") as positive_examples:
             positive_examples.write(possible_actions)
-            for count in range(len(split_possible_actions)):
-                ordering_template = '#brave_ordering(ord{count}@1, pos{index_selected_action}, pos{count}).'
-                if count != index_selected_action and split_possible_actions[count].startswith('#'):
-                    positive_examples.write(ordering_template.format(count=count + self.count_actions,
-                                                                     index_selected_action=index_selected_action + self.count_actions)
-                                            + '\n')
+        for index_selected_action in list_index_actions:
+            with open("positive_examples.las", "a") as positive_examples:
+                for count in range(len(split_possible_actions)):
+                    ordering_template = '#brave_ordering(ord{order}@1, pos{index_selected_action}, pos{count}).'
+                    if count not in list_index_actions and split_possible_actions[count].startswith('#'):
+                        positive_examples.write(ordering_template.format(count=count + self.count_actions,
+                                                                         order=self.count_orders,
+                                                                         index_selected_action=index_selected_action + self.count_actions)
+                                                + '\n')
+                        self.count_orders += 1
         self.count_actions += len(split_possible_actions)
+
+    def undo(self):
+        self.turn = 1
+        self.time -= 1
+        self.last_moved_pawn.select()
+        self.last_moved_pawn.move_to(int(self.list_actions[0, 0, 0]), int(self.list_actions[0, 0, 1]))
+        self.last_moved_pawn.unselect()
+        pygame.time.wait(100)
 
 
 def del_last_line():

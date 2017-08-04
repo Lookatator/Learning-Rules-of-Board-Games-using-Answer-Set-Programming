@@ -28,13 +28,18 @@ class Pawn:
         self.is_selected = False
         self.draw()
 
-    def move_to(self, new_pos_x, new_pos_y):
-        self.undraw()
+    def legal_move(self, new_pos_x, new_pos_y):
         if self.pos_x == new_pos_x + 1 or self.pos_x == new_pos_x - 1:
             if self.pos_y == new_pos_y + 1 or self.pos_y == new_pos_y - 1:
-                self.pos_x = new_pos_x
-                self.pos_y = new_pos_y
                 return True
+        return False
+
+    def move_to(self, new_pos_x, new_pos_y):
+        self.undraw()
+        if self.legal_move(new_pos_x, new_pos_y):
+            self.pos_x = new_pos_x
+            self.pos_y = new_pos_y
+            return True
         return False
 
     def undraw(self):
