@@ -16,3 +16,5 @@ Rapport/texput.log
 gringo-4.5.4-linux-x86_64/
 .idea/
 /**/*.pyc
+**/*.dvi
+**/*.log
