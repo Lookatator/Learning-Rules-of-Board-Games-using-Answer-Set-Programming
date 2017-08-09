@@ -220,3 +220,8 @@ terminated(T+1) :- terminated(T), time(T).
 
 
 
+#pos({legal(player1,move(coord(1,0),coord(2,1)),1)},{},{ time(1..1).}).
+#neg({legal(player2,move(coord(3,0),coord(2,1)),2)},{},{does(player1,move(coord(1,0),coord(2,1)),1).
+ time(1..2).}).
+#neg({legal(player2,move(coord(2,2),coord(3,1)),2)},{},{does(player1,move(coord(1,0),coord(2,1)),1).
+ time(1..2).}).
