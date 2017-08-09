@@ -1,6 +1,5 @@
 \chapter{Background}
 
-
 \section{Answer Set Programming (ASP)}
 
 \subsection{Logic Program}
@@ -48,7 +47,24 @@ Stable models of $P$ have more properties than its models in general: they also 
 \subsection{Tools}
 
 For ASP problems, we will use some of the tools developed by the University of Potsdam: \texttt{gringo}, \texttt{clasp} and \texttt{clingo}. \texttt{gringo} transforms the logic program in input into an equivalent variable-free program (it is a \textit{grounder}). And \texttt{clasp} is a \textit{solver} capable of solving ground logic programs. Finally, \texttt{clingo} only combines grounding (with \texttt{gringo}) and solving (with \texttt{clasp}).
+
+\smallskip
+
+We used the version 4.3.0 of \texttt{clingo} since this the one that ILASP uses.
 %TODO : reference manuel
+
+\subsection{Optimization in clingo}
+
+
+
+\subsubsection{.}
+
+% #minimum
+
+\subsubsection{Weak Constraints}
+
+
+
 \section{Single-Player Games in ASP}
 
 It is possible to formalize and solve Single-Player Games in ASP. To illustrate the predicates that can be used to describe these games, we will focus on a basic example: a simple graph game.
@@ -104,7 +120,7 @@ The rules of the graph game on figure \ref{fig:agent} are the following:
 \texttt{goal(player,  0,T) :- holds(hole, player, T).}
 \end{itemize}
 
-We will follow the following Game Description Language (GDL) restriction: the predicate \texttt{does} does not appear in the definition of \texttt{terminal}, \texttt{goal} or \texttt{legal}. Also, \texttt{does} only appears in rule bodies. 
+We will follow the following Game Description Language (GDL) restriction: the predicate \texttt{does} does not appear in the definition of \texttt{terminal}, \texttt{goal} or \texttt{legal}.
 
 \subsection{Finding a solution to the game}
 
@@ -123,11 +139,10 @@ Where \texttt{terminated(T)} is true if and only if there is a T1 such that $T1<
 \texttt{:- 0\{terminated(T) : time\_domain(T)\}0.}\\
 \texttt{time\_domain(1..10). \% We allow at most 10 moves} 
 
-\item 
+\item Finally, we would like to find a sequence of moves in order to win the game:\newline
+\texttt{:- terminal(T), not goal(player, 100, T)}
 
 \end{itemize}
-
-
 
 \section{Inductive Logic Programming}
 
@@ -146,6 +161,37 @@ A brave inductive task is a tuple $T_b=<B, E^+, E^->$ (where $E^+$ and $E^-$ are
 We call $ILP_b(B,E^+,E^-)$ the set of hypotheses that are solutions of $T_b$. 
 
 \subsubsection{ASPAL encoding}
+
+By using ASPAL, we can find the optimal solutions to a brave inductive task. We
+illustrate how to use the ASPAL encoding with clingo in the following example.\bigskip
+
+First of all, we consider the background knowledge B:\newline
+\texttt{person(Nicolas). person(Pierre).\\
+play\_video games(Nicolas). play\_video\_games(Pierre). works(Nicolas).}\\
+
+And we take: $E^+=\{\texttt{good\_marks(Nicolas)}\}$ and $E^-=\{\texttt{good\_marks(Pierre)}\}$
+
+\begin{itemize}
+\item We are studying the hypotheses that are following this mode: \texttt{modeh(good\_marks(+X))}, \texttt{modeb(1,works(+X))} and \texttt{modeb(1,play\_video\_games(+X))}. So we write all the possible hypotheses, and we add the predicate rule/1 that takes as an argument the id of the hypothesis.\newline
+\texttt{good marks(P) :- rule(1).\\
+good\_marks(P) :- works(P), rule(2).\\
+good\_marks(P) :- play\_video\_games(+P), rule(3).\\
+good\_marks(P) :- works(P), play\_video\_games(+P), rule(4).}
+
+\item We will select some rules between those above:\newline
+\texttt{\{rule(1..4).\}}
+
+\item And we want to respect the examples:\newline
+\texttt{goal :- good\_marks(Nicolas), not good\_marks(Pierre).\\
+:- not goal.}
+
+\item Finally, we want to find the optimal (the shortest) hypothesis:\newline
+\texttt{\#minimize[rule(1)=1,rule(2)=2,rule(3)=2,rule(4)=3].}
+
+\end{itemize}
+
+
+
 
 %TODO défauts d'ASPAL
 
@@ -187,13 +233,37 @@ We call $ILP_{LAS}(B,S_M,E^+,E^-)$ the set of hypotheses that are solutions of $
 
 ILASP is a tool developed at Imperial College London that is capable of finding optimal hypotheses for Learning from Answer Sets tasks. We only need to give it: the background knowledge with the \texttt{clingo} syntax, and the mode declaration for the variables that can appear in the head or in the body of a rule in the hypothesis. We can also specify the positive and negative partial interpretations of the task.
 
+\paragraph{Learning rules of games/environment}
+
+ILASP has been used for learning the rules of Sudoku. Also, a simulated agent in an unknown environment could learn progressively the rules of this environment (such that: ”the agent cannot go through a wall”, ”the agent has to get the key before entering a locked cell”...).
+
+\paragraph{Learning weak constraints}
+
+ILASP can also be used to learn weak constraints, which are some kind of constraints used in \texttt{clingo} to rank the answer sets (we can find which solutions/answer sets optimize the problem).
+
+\paragraph{Learning from Context Dependant Answer Sets} 
+
+Instead of containing partial interpretations, $E^+$ and $E^-$ contain tuples $<<e^+,e^->,C>$ where $C$ is a \textit{context}. 
+
+\smallskip
+
+We say that an hypothesis $H$ is solution of $T^{Context}_{LAS}=<B,S_M,E^+,E^->$ iff
 \begin{itemize}
-\item Learning from Answer Sets Induction
-\item ILASP
-\begin{itemize}
-\item examples of what has been done so far
-\item learning weak constraints ?
-\item contexts
-\item noisy examples
+\item for all $<< e^+ , e^->, C >\in E^+$, there is an Answer Set $A$ of $B \cup H \cup C$ such that $A$ extends $< e^+ , e^- >$
+
+
+\item for all $<< e^+ , e^->, C >\in E^+$, there are no Answer Set $A$ of $B \cup H \cup C$ such that $A$ extends $< e^+ , e^- >$
+
 \end{itemize}
-\end{itemize}
+
+\paragraph{Learning from Noisy Examples}
+
+ILASP (v3) is also able to learn from noisy data: it can learn an hypothesis that covers a majority (or the most important) examples. To do so, we need to specify which examples are in the noisy data, and we give a weight to them. 
+
+\smallskip
+
+ILASP will minimize the sum of the length of the hypothesis and of the weights of the uncovered examples (the weight of an example reflects its importance).
+
+%TODO : décrire l'algo utilisé par ILASP ? Ou comparaison des différentes version d'ILASP sur le fonctionnement de l'algo
+%TODO : 
+
