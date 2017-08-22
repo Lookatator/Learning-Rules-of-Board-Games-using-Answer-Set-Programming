@@ -1,7 +1,8 @@
 import pygame
-
+import ilasp
 import subprocess
 import numpy as np
+from representation import is_odd
 from pawn_NMM import Pawn
 
 
@@ -18,10 +19,13 @@ class Board:
         self.time = 1
         self.count_actions = 0
         self.count_orders = 0
-        # self.ilasp = ilasp.Ilasp()
+        self.ilasp = ilasp.Ilasp()
         self.fictive_selection = False
         self.fictive_selection_pos_x = -1
         self.fictive_selection_pos_y = -1
+        self.phase = 1
+        self.count_p1_pawns_in_hand = 9
+        self.count_p2_pawns_in_hand = 9
         with open("game_actions.txt", "w") as game_actions:
             game_actions.write("time(1).\n")
             game_actions.write("#show does(player1,move(Coord_1,Coord_2),1) : does(player1,move(Coord_1,Coord_2),1).")
@@ -251,6 +255,41 @@ class Board:
                         self.count_orders += 1
         self.count_actions += len(split_possible_actions)
 
+    def is_in_mill(self, position):
+        side = self.positions[tuple(position)]
+        print side
+        if side != 0:
+            if is_odd(position[0]):
+                if position[0] == 7:
+                    sub_alignment = np.append(self.positions[6:8, position[1]],
+                                              self.positions[0, position[1]])
+                    print sub_alignment
+                else:
+                    sub_alignment = self.positions[position[0] - 1:position[0] + 2, position[1]]
+                return np.all(self.positions[position[0], :] == np.ones(3) * side) or np.all(
+                    sub_alignment == np.ones(3) * side)
+            else:
+                if position[0] == 0:
+                    sub_alignment = np.append(self.positions[6:8, position[1]], self.positions[0, position[1]])
+                    return np.all(
+                        sub_alignment == np.ones(3) * side) or np.all(
+                        self.positions[0:3, position[1]] == np.ones(3) * side)
+                elif position[0] == 6:
+                    sub_alignment = np.append(self.positions[6:8, position[1]], self.positions[0, position[1]])
+                    return np.all(
+                        sub_alignment == np.ones(3) * side) or np.all(
+                        self.positions[4:7, position[1]] == np.ones(3) * side)
+                else:
+                    return np.all(
+                        self.positions[position[0] - 2:position[0] + 1, position[1]] == np.ones(3) * side) or np.all(
+                        self.positions[position[0]:position[0] + 3, position[1]] == np.ones(3) * side)
+
+    def update_phase(self):
+        if self.count_p1_pawns_in_hand == 0 and self.count_p2_pawns_in_hand == 0:
+            self.phase = 2
+        else:
+            self.phase = 1
+
     def undo(self):
         self.turn = 1
         self.time -= 1
@@ -263,11 +302,27 @@ class Board:
         if self.positions[tuple(position)] == 0:
             pawn = Pawn(position, 1, self.window)
             self.add_pawn(pawn)
+            self.turn += 1
+            self.time += 1
+            self.count_p1_pawns_in_hand -= 1
+            self.update_phase()
+            if self.is_in_mill(position):
+                print "IS IN MILL"
 
     def place_red_pawn(self, position):
         if self.positions[tuple(position)] == 0:
             pawn = Pawn(position, 2, self.window)
             self.add_pawn(pawn)
+            self.turn += 1
+            self.time += 1
+            self.count_p2_pawns_in_hand -= 1
+            self.update_phase()
+            print self.count_p1_pawns_in_hand
+            print self.count_p2_pawns_in_hand
+            if self.phase == 2:
+                print "NEW PHASE"
+            if self.is_in_mill(position):
+                print "IS IN MILL"
 
     def select_pawn(self, position):
         for pawn in self.list_pawns:
@@ -292,6 +347,20 @@ class Board:
                 self.positions[tuple(position)] = 0
                 self.list_pawns.remove(pawn)
         print self.list_pawns
+
+    def check_player_turn(self, player):
+        if self.turn == player:
+            # self.ilasp.add_example_can_play()
+            return True
+        else:
+            return False
+
+    def check_phase(self, phase):
+        # self.ilasp.add_example_can_play()
+        if self.phase == phase:
+            return True
+        else:
+            return False
 
 
 def del_last_line():
