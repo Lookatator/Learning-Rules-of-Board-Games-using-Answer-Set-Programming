@@ -53,17 +53,57 @@ For ASP problems, we will use some of the tools developed by the University of P
 We used the version 4.3.0 of \texttt{clingo} since this the one that ILASP uses.
 %TODO : reference manuel
 
-\subsection{Optimization in clingo}
+\subsection{\colorbox{yellow}{Optimization in clingo}}
+
+In \texttt{clingo}, it is possible to explain what kind of answer sets are optimal by using \textit{weak constraints}. A weak constraint has the following form:
+\begin{center}
+\texttt{:$\sim$ t$_1$, t$_2$, t$_3$,..., t$_n$.[w@p, id$_1$, id$_2$, ..., id$_m$]}
+\end{center}
+where \texttt{w} is called the \textit{weight}, and \texttt{p} is called the \textit{priority} of the weak constraint. We will also call \textit{ID} of the weak constraint the list \texttt{[\texttt{w}, \texttt{p}, id$_1$, id$_2$, ..., id$_m$]}. We say that a weak constraint is satisfied by an answer set $A$ if there is at least one atom among t$_1$, t$_2$, t$_3$,..., and t$_n$ that is not in $A$.
+
+\smallskip
+
+We call cost of an answer set $A$ for a given priority \texttt{p} (written $cost_{\texttt{p}}(A)$) the sum of the weights \texttt{w} of the different lists \texttt{[\texttt{w}, \texttt{p}, id$_1$, id$_2$, ..., id$_m$]} such that: there is at least a weak constraint whose ID is  \texttt{[\texttt{w}, \texttt{p}, id$_1$, id$_2$, ..., id$_m$]} that is not satisfied by $A$.
+
+\bigskip
+
+As a consequence:
+\begin{itemize}
+\item if we prefer the answer sets that satisfy a constraint \texttt{:- t$_1$, t$_2$, t$_3$,..., t$_n$.}, then we can use a weak constraint of the form \texttt{:$\sim$ t$_1$, t$_2$, t$_3$,..., t$_n$.[w@p, id$_1$, id$_2$, ..., id$_m$]} where the weight \texttt{w} is \textbf{positive}.
+\item if we prefer the answer sets that satisfy all the atoms \texttt{t$_1$, t$_2$, t$_3$,...,} and \texttt{t$_n$} at the same time, then we can use a weak constraint of the form \texttt{:$\sim$ t$_1$, t$_2$, t$_3$,..., t$_n$.[w@p, id$_1$, id$_2$, ..., id$_m$]} where the weight \texttt{w} is \textbf{negative}.
+\end{itemize}
+
+\smallskip
+
+For \texttt{clingo}, in a given ASP program $P$, an answer set $A_1$ \textbf{is preferred to} $A_2$ if and only if $cost_{\texttt{p}}(A_1)<cost_{\texttt{p}}(A_2)$ where \texttt{p} is the lowest priority for which $cost_{\texttt{p}}(A_1)\neq cost_{\texttt{p}}(A_2)$.
+
+\begin{example}
+We consider the following ASP program:\newline
+\texttt{1\{go\_on\_holidays ; work\_at\_imperial\}1.\\
+bad\_mark :- go\_on\_holidays.\\
+good\_mark :- work\_at\_imperial.}
+
+\smallskip
+
+To this program we add the two following weak constraints:\newline
+\texttt{:$\sim$ go\_on\_holidays.[-1@1] \% we enjoy holidays (priority 1)\\
+:$\sim$ good\_mark.[-1@2] \% we like good marks (priority 2)}
+
+\smallskip
+
+This ASP program has two answer sets: $A_1 = \{ \texttt{go\_on\_holidays}, \texttt{bad\_mark}\}$ and $A_2 = \{ \texttt{work\_at\_imperial}, \texttt{good\_mark} \}$. 
+
+\begin{itemize}
+\item $A_1$ satisfies only the second weak constraint. So its scores are $cost_1(A_1)=-1$ and $cost_2(A_1)=0$.
+\item $A_2$ satisfies only the first weak constraint. So its scores are $cost_1(A_2)=0$ and $cost_2(A_2)=-1$.
+\end{itemize}
+
+The highest priority is 2 and $cost_2(A_2)<cost_2(A_1)$. Thus, $A_2=\{ \texttt{work\_at\_imperial}, \texttt{good\_mark} \}$ is optimal.
+
+\end{example}
 
 
-
-\subsubsection{.}
-
-% #minimum
-
-\subsubsection{Weak Constraints}
-
-
+%TODO : référence manuel ou référence à l'article évoqué dans manuel.
 
 \section{Single-Player Games in ASP}
 
@@ -83,7 +123,7 @@ The rules of the graph game on figure \ref{fig:agent} are the following:
 
 \begin{figure}[h]
 \centering
-\includegraphics[width = 0.8\hsize]{diagram1.png}
+\includegraphics[width = 0.8\hsize]{figures/diagram1.png}
 \caption{Simple graph game}
 \label{fig:agent}
 \end{figure}
@@ -221,13 +261,63 @@ We say that an interpretation $I$ of $B$ extends a partial interpretation $<e^+,
 
 \subsubsection{Learning from Answer Sets Induction}
 
-A Learning from Answer Sets task is a tuple $T_{LAS}=<B, S_M, E^+, E^->$ (where $E^+$ and $E^-$ are sets of partial interpretations) such that: an hypothesis $H$ is solution of $T_{LAS}$ iff 
+\begin{definition}
+
+A \textit{Learning from Answer Sets task} is a tuple $T_{LAS}=<B, S_M, E^+, E^->$ (where $E^+$ and $E^-$ are sets of partial interpretations) such that: a hypothesis $H$ is solution of $T_{LAS}$ iff 
 \begin{itemize}
 \item For all  $<e^+,e^->\in E^+$, there is an answer set of $B\cup H$ that extends $<e^+,e^->$
 \item For all  $<e^+,e^->\in E^-$, there are no answer sets of $B\cup H$ that extend $<e^+,e^->$
 \end{itemize}
 
 We call $ILP_{LAS}(B,S_M,E^+,E^-)$ the set of hypotheses that are solutions of $T_{LAS}$. 
+\end{definition}
+
+\begin{example}
+
+\end{example}
+
+\subsubsection{Learning from Ordered Answer Sets}
+
+The definition of Learning from Answer Sets task can be extended to take into account the ordering relations between the different answer sets of the ASP program. We will first define what is an ordering example, and how it can be used to represent the ordering relations \citep{law2015weak}.
+
+\begin{definition}
+
+We will call \textit{ordering example} every pair $<e_1,e_2>$ of partial interpretations. We define two ways for an ASP program to cover an ordering example:
+\begin{itemize}
+\item An ordering examples is \textit{bravely covered} by an ASP program $P$ iff \textbf{there are} two answer sets $A_1$ and $A_2$ such that $A_1$ extends $e_1$, $A_2$ extends $e_2$ and $A_1$ is preferred to $A_2$.
+\item An ordering example is \textit{cautiously covered} by an ASP program $P$ iff \textbf{for every} answer sets $A_1$ and $A_2$ such that $A_1$ extends $e_1$, $A_2$ extends $e_2$ and $A_1$ is preferred to $A_2$.
+\end{itemize}
+\end{definition}
+
+Now we can give the definition for a Learning from Ordered Answer Sets task \citep{law2015weak}:
+
+\begin{definition}
+A \textit{Learning from Ordered Answer Sets task} is a tuple $T_{LOAS}=<B, S_M, E^+, E^-,O^{brave}, O^{cautious}>$ (where $E^+$ and $E^-$ are sets of partial interpretations and $O^{brave}$ and $O^{cautious}$ are sets of ordering examples) such that: every partial interpretation that appears in $O^{brave}$ and $O^{cautious}$ is in $E^+$, and a hypothesis $H$ is solution of $T_{LOAS}$ iff 
+\begin{itemize}
+\item $H$ is a solution of $T_{LAS}=<B, S_M, E^+, E^->$.
+\item Every ordering example in $O^{brave}$ is bravely covered by $B\cup H$
+\item Every ordering example in $O^{cautious}$ is cautiously covered by $B\cup H$
+\end{itemize}
+
+We call $ILP_{LOAS}(B,S_M,E^+,E^-,O^{brave},O^{cautious})$ the set of hypotheses that are solutions of $T_{LOAS}$.
+\end{definition}
+
+\begin{example}
+
+\end{example}
+
+\subsubsection{Learning from Context Dependant Answer Sets}
+%TODO : talk about ILASP --2i
+
+The two tasks defined above can be generalized by adding a \textit{context} to every partial interpretation \citep{law2016context}. A \textit{context} is an ASP program that does not contain any weak constraint or any other statement used to classify answer sets. Instead of containing partial interpretations, $E^+$ and $E^-$ contain tuples $<<e^+,e^->,C>$ where $C$ is the \textit{context} of the partial interpretation.  
+
+\begin{definition}
+
+\end{definition}
+
+\begin{example}
+
+\end{example}
 
 \subsubsection{ILASP}
 
@@ -239,7 +329,17 @@ ILASP has been used for learning the rules of Sudoku. Also, a simulated agent in
 
 \paragraph{Learning weak constraints}
 
-ILASP can also be used to learn weak constraints, which are some kind of constraints used in \texttt{clingo} to rank the answer sets (we can find which solutions/answer sets optimize the problem).
+ILASP can also be used to solve Learning from Ordered Answer Sets tasks
+
+%TODO : cite second paper from Mark
+
+\smallskip
+
+Do to so, we specify the partial interpretations that belong to $E^+$ and we give them names (like \texttt{pos1}, \texttt{pos2}...). Then there are two ways to specify the ordering relations between some answer sets:
+\begin{itemize}
+\item 
+\item 
+\end{itemize}
 
 \paragraph{Learning from Context Dependant Answer Sets} 
 

@@ -7,15 +7,39 @@ This project focuses on three games: \textit{Five Field Kono}, \textit{Nine Men'
 
 \bigskip
 
-\emph{TODO : Describe origin, rules... for the three games}
-
-
 \subsection{Five Field Kono}
 
 %TODO : describe origin/ rules/ etc...
+Five Field Kono is a Korean strategy game. It is played on a $5\times 5$ grid. Its initial configuration is as presented in figure \ref{fig:FFK_initial}. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width = 0.3\hsize]{figures/FFK_rules.png}
+\caption{Initial configuration of Five Field Kono. The two players (in blue and red) have seven pawns each.}
+\label{fig:FFK_initial}
+\end{figure}
+
+The two opponents move one of their pawns in turn knowing that a pawn can only be moved diagonally to an adjacent square (forwards or backwards). A player wins if all his pawns have taken the positions initially held by his opponent's pawns (see figure \ref{fig:FFK_ending}).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width = 0.3\hsize]{figures/FFK_ending.png}
+\caption{Situation where the blue player wins at Five Field Kono. Every blue pawn is in a square initially occupied by a red pawn (see figure \ref{fig:FFK_initial})}
+\label{fig:FFK_ending}
+\end{figure}
 
 
 \subsection{Nine Men's Morris}
+
+Nine Men's Morris is also a Korean strategy game \citep{9MM_rules}. At first the two opponents place in turn their pawns on the board (figure \ref{fig:9MM_initial}). When three pawns are aligned on the board, we say that they form a \textbf{mill}. Each time a player does a mill, he can remove one of his opponent's pawns on the board (that is not already in a mill if possible). Once both players have placed all their pawns, they move in turn one of them to an adjacent empty position. In this second phase, creating a meal has the same effect as before. A player wins if his opponent cannot move or has only two pawns left.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width = 0.3\hsize]{figures/9MM_initial.png}
+\caption{Board for Nine Men's Morris. The circles are the positions where the pawns can be placed or moved. Two positions are adjacent if there is an edge that links them.}
+\label{fig:9MM_initial}
+\end{figure}
+
 
 \subsection{ASALTO}
 
@@ -77,7 +101,7 @@ To represent \textit{Nine Men's Morris}, ASP, we first need to define what are t
 
 \begin{figure}[h]
 \centering
-\includegraphics[width = 0.8\hsize]{9MM_coord.png}
+\includegraphics[width = 0.8\hsize]{figures/9MM_coord.png}
 \caption{Coordinates of the cells used in Nine Men's Morris}
 \label{fig:9MM_coord}
 \end{figure}
