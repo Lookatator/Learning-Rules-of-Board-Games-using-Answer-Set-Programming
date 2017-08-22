@@ -3,6 +3,7 @@ import pygame
 from pawn_FFK import Pawn
 import subprocess
 import numpy as np
+import ilasp
 
 
 class Board:
@@ -20,6 +21,7 @@ class Board:
         self.time = 1
         self.count_actions = 0
         self.count_orders = 0
+        self.ilasp = ilasp.Ilasp()
         with open("game_actions.txt", "w") as game_actions:
             game_actions.write("time(1).\n")
             game_actions.write("#show does(player1,move(Coord_1,Coord_2),1) : does(player1,move(Coord_1,Coord_2),1).")
@@ -151,6 +153,9 @@ class Board:
         possible_actions = ''
         split_possible_actions = ''
         list_index_actions = np.array([]).astype(int)
+        with open('positive_examples.las','w') as positive_examples:
+            pass
+
         for m in self.list_actions:
             previous_pos_x = m[0, 0]
             previous_pos_y = m[0, 1]
@@ -202,6 +207,8 @@ class Board:
                                                 + '\n')
                         self.count_orders += 1
         self.count_actions += len(split_possible_actions)
+        self.ilasp.generate_hypothesis()
+
 
     def undo(self):
         self.turn = 1

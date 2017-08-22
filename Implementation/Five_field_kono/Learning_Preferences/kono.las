@@ -3,9 +3,6 @@
 role(player1, red).
 role(player2, blue).
 
-opponent_player(player1, player2).
-opponent_player(player2, player1).
-
 % describe the state of the game before any player plays
 holds(cell(coord(0,0..4), red),1).
 holds(cell(coord(1,0), red),1).
@@ -57,15 +54,8 @@ possible_move(coord(X1,X2),coord(Y1,Y2)) :- X1==Y1-1, X2==Y2+1, range0(X1), rang
 possible_move(coord(X1,X2),coord(Y1,Y2)) :- X1==Y1+1, X2==Y2-1, range1(X1), range0(X2), range0(Y1), range1(Y2).
 possible_move(coord(X1,X2),coord(Y1,Y2)) :- X1==Y1+1, X2==Y2+1, range1(X1), range1(X2), range0(Y1), range0(Y2).
 
-
-
-
-
 % describe what actions are legal or not.
-%legal(P, move(X,Y), T) :- possible_move(X,Y), holds(cell(X,S), T), holds(cell(Y,empty), T), role(P, S), time(T), can_play(P, move, T).
-
-% can_play(P, move, T) :- can_play(P2, move, T-1), time(T), opponent_player(P, P2).
-
+legal(P, move(X,Y), T) :- possible_move(X,Y), holds(cell(X,S), T), holds(cell(Y,empty), T), role(P, S), time(T).
 
 legal(Player, move_pawn(Pawn, up_right), T) :- legal(Player, move(coord(X,Y),coord(X+1,Y-1)), T), holds(is_at(Pawn, coord(X,Y)), T), belongs_to(Pawn, Player), time(T).
 legal(Player, move_pawn(Pawn, up_left), T) :- legal(Player, move(coord(X,Y),coord(X-1,Y-1)), T), holds(is_at(Pawn, coord(X,Y)), T), belongs_to(Pawn, Player), time(T).
@@ -196,76 +186,131 @@ terminated(T+1) :- terminated(T), time(T).
 
 
 % everything that is done must be legal
-%:- does(P,M,T), not legal(P,M,T).
+:- does(P,M,T), not legal(P,M,T).
 
 % :- 0{terminated(T) : time(T)}0.
 
 %% turn-based game
 % a player cannot play twice
-%:- does(P,M1,T), does(P,M2,T+1).
+:- does(P,M1,T), does(P,M2,T+1).
 
 % the first player starts
 %1{does(player1,move_pawn(Pawn,Direction),1) : direction_domain(Direction), belongs_to(Pawn, player1)}1.
 
-legal(P,move(X,Y),T) :- can_play(P, move, T), extra(P,X,Y,T).
-can_play(player1,move,1).
-decrement_time(T, T-1) :- time(T).
 
 
+diagonal_collision(up_right, State_2, cell(coord(X,Y),red), cell(coord(X1,Y1),State_2), T) :- holds(cell(coord(X,Y),red),T), holds(cell(coord(X1,Y1),State_2), T), possible_move(coord(X,Y),coord(X1,Y1)), X1==X+1, Y1==Y-1.
+diagonal_collision(down_right, State_2, cell(coord(X,Y),red), cell(coord(X1,Y1),State_2), T) :- holds(cell(coord(X,Y),red),T), holds(cell(coord(X1,Y1),State_2), T), possible_move(coord(X,Y),coord(X1,Y1)), X1==X+1, Y1==Y+1.
 
-#bias(":- head(extra(P,X,Y,T)), body(can_play(P2,M,T2)).").
-#bias(":- head(extra(P,X,Y,T)), body(decrement_time(T1,T2)).").
-#bias(":- head(extra(P,X,Y,T)), body(opponent_player(P1,P2)).").
-#bias(":- head(can_play(P,move,T)), body(can_play(P,move,T)).").
-#bias(":- head(can_play(P,move,T)), body(holds(C,T)).").
-#bias(":- head(can_play(P,move,T)), possible_move(X,Y).").
-#bias(":- constraint.").
+diagonal_collision(State_2, cell(coord(X,Y),red), cell(coord(X1,Y1),State_2), T) :- diagonal_collision(down_right, State_2, cell(coord(X,Y),red), cell(coord(X1,Y1),State_2), T).
+diagonal_collision(State_2, cell(coord(X,Y),red), cell(coord(X1,Y1),State_2), T) :- diagonal_collision(up_right, State_2, cell(coord(X,Y),red), cell(coord(X1,Y1),State_2), T).
+
+adjacent(bottom, red, cell(coord(X,Y),red), cell(coord(X1,Y1),red), T) :- holds(cell(coord(X,Y),red),T), holds(cell(coord(X1,Y1),red),T), X==X1, Y==Y1+1.
+
+has_state(Coord,State,T) :- holds(cell(Coord,State),T).
+
+#pos(pos18,{does(player1,move(coord(2,3),coord(3,2)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,4),coord(3,3)),2).
+time(1..3).
+}).
+#pos(pos19,{does(player1,move(coord(2,3),coord(1,2)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,4),coord(3,3)),2).
+time(1..3).
+}).
+#pos(pos20,{does(player1,move(coord(2,3),coord(1,4)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,4),coord(3,3)),2).
+time(1..3).
+}).
+#pos(pos21,{does(player1,move(coord(0,3),coord(1,4)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,4),coord(3,3)),2).
+time(1..3).
+}).
+#pos(pos22,{does(player1,move(coord(0,4),coord(1,3)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,4),coord(3,3)),2).
+time(1..3).
+}).
+#pos(pos23,{does(player1,move(coord(0,0),coord(1,1)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,4),coord(3,3)),2).
+time(1..3).
+}).
+#pos(pos24,{does(player1,move(coord(0,3),coord(1,2)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,4),coord(3,3)),2).
+time(1..3).
+}).
+#pos(pos25,{does(player1,move(coord(0,1),coord(1,2)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,4),coord(3,3)),2).
+time(1..3).
+}).
+#pos(pos26,{does(player1,move(coord(0,2),coord(1,1)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,4),coord(3,3)),2).
+time(1..3).
+}).
+#pos(pos27,{does(player1,move(coord(0,2),coord(1,3)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,4),coord(3,3)),2).
+time(1..3).
+}).
+#pos(pos28,{does(player1,move(coord(1,0),coord(2,1)),3)},{},{
+does(player1, move(coord(1,4),coord(2,3)),1).
+does(player2, move(coord(4,4),coord(3,3)),2).
+time(1..3).
+}).
+#brave_ordering(ord24@1, pos18, pos19).
+#brave_ordering(ord25@1, pos18, pos20).
+#brave_ordering(ord26@1, pos18, pos21).
+#brave_ordering(ord27@1, pos18, pos22).
+#brave_ordering(ord28@1, pos18, pos23).
+#brave_ordering(ord29@1, pos18, pos24).
+#brave_ordering(ord30@1, pos18, pos25).
+#brave_ordering(ord31@1, pos18, pos26).
+#brave_ordering(ord32@1, pos18, pos27).
+#brave_ordering(ord33@1, pos28, pos19).
+#brave_ordering(ord34@1, pos28, pos20).
+#brave_ordering(ord35@1, pos28, pos21).
+#brave_ordering(ord36@1, pos28, pos22).
+#brave_ordering(ord37@1, pos28, pos23).
+#brave_ordering(ord38@1, pos28, pos24).
+#brave_ordering(ord39@1, pos28, pos25).
+#brave_ordering(ord40@1, pos28, pos26).
+#brave_ordering(ord41@1, pos28, pos27).
 
 
+#modeo(diagonal_collision(const(state_1), var(c_1), var(c_2), var(t)),(positive)).
+#modeo(adjacent(const(direction_2), const(state_2), var(c_1), var(c_2), var(t)),(positive)).
+%#modeo(coucou(var(t)),(positive)).
 
 
+%#modeo(possible_move(var(c_1),var(c_2)),(positive)).
+%#modeo(has_state(var(c_1),const(state),const(t)),(positive)).
+%#modeo(has_state(var(c_2),const(state),const(t)),(positive)).
+%#bias("coucou :- body(possible_move(C1,C2,2)).").
+%#bias(":- not coucou.").
+#constant(direction_1, up_right).
+#constant(direction_1, down_right).
+#constant(direction_2, bottom).
 
-#maxv(5).
-#max_penalty(10).
-%#disallow_multiple_head_variables.
+#constant(state_1, red).
+#constant(state_1, blue).
+#constant(state_1, empty).
+#constant(state_2, red).
+#constant(t,2).
+#constant(t,4).
+#weight(-1).
+#maxv(3).
+#maxp(1).
 
-
-
-%does(player1,move(coord(1,0),coord(2,1)),1).
-%time(1..2).
-
-#modeh(can_play(var(player), const(action), var(time))).
-#modeb(1, opponent_player(var(player), var(player2)), (positive)).
-#modeb(1,can_play(var(player2), const(action), var(time))).
-#modeb(1,can_play(var(player2), const(action), var(time2)),(positive)).
-#modeb(1, decrement_time(var(time), var(time2)), (positive)).
-#modeb(1, time(var(time)), (positive)).
-
-#constant(action, move).
-#modeh(extra(var(player), var(x), var(y), var(time))).
-#modeb(1,possible_move(var(x), var(y)), (positive)).
-#modeb(holds(cell(var(x),const(color)), var(time))).
-#modeb(holds(cell(var(x),var(color)), var(time))).
-#modeb(holds(cell(var(y),const(color)), var(time))).
-#modeb(holds(cell(var(y),var(color)), var(time))).
-#modeb(1,role(var(player),var(color)), (positive)).
-#modeb(1, time(var(time)), (positive)).
-
-#constant(color, red).
-#constant(color, empty).
-#constant(color, blue).
-#pos({legal(player1,move(coord(1,0),coord(2,1)),1)},{},{ time(1..1).}).
-#neg({legal(player1,move(coord(2,1),coord(3,0)),2)},{},{does(player1,move(coord(1,0),coord(2,1)),1).
- time(1..2).}).
-#pos({legal(player2,move(coord(4,0),coord(3,1)),2)},{},{does(player1,move(coord(1,0),coord(2,1)),1).
- time(1..2).}).
-#neg({legal(player2,move(coord(4,1),coord(3,2)),3)},{},{does(player1,move(coord(1,0),coord(2,1)),1).
-does(player2,move(coord(4,0),coord(3,1)),2).
- time(1..3).}).
-#pos({legal(player1,move(coord(1,4),coord(2,3)),3)},{},{does(player1,move(coord(1,0),coord(2,1)),1).
-does(player2,move(coord(4,0),coord(3,1)),2).
- time(1..3).}).
-#neg({legal(player2,move(coord(1,3),coord(2,2)),4)},{},{does(player1,move(coord(1,0),coord(2,1)),1).
-does(player2,move(coord(4,0),coord(3,1)),2).
-does(player1,move(coord(1,4),coord(2,3)),3).
- time(1..4).}).
+%#show does/3.
+%#show possible_move/2.
+%#show does(Player,move_pawn(Pawn,Direction),T) : does(Player,move_pawn(Pawn,Direction),T), direction_domain(Direction), belongs_to(Pawn, Player), T=1.
+%#show legal(player2,move_pawn(P,D),2) : legal(player2,move_pawn(P,D),2).
+%#show legal(player1,move_pawn(P,D),1) : legal(player1,move_pawn(P,D),1).
+%#show holds(is_at(Pawn, coord(X,Y)), 2) : holds(is_at(Pawn, coord(X,Y)), 2).

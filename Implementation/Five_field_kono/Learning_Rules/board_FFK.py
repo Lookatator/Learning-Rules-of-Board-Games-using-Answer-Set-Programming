@@ -78,12 +78,13 @@ class Board:
         print 'MOVE_PAWN_TO'
         print self.turn
         print self.selected_pawn.side
-        print self.positions[pos_x,pos_y]
+        print self.positions[pos_x, pos_y]
         if self.selected_pawn is not None:
             previous_pos_x = self.selected_pawn.pos_x
             previous_pos_y = self.selected_pawn.pos_y
             if self.turn == self.selected_pawn.side:
-                if self.positions[pos_x,pos_y] == 0:
+                self.ilasp.add_example_can_play(True, self.selected_pawn.side)
+                if self.positions[pos_x, pos_y] == 0:
                     if 5 > pos_x >= 0 and 5 > pos_y >= 0:
                         if self.selected_pawn.move_to(pos_x, pos_y):
                             if self.turn == 2:
@@ -105,24 +106,26 @@ class Board:
                                 print(self.list_actions)
                                 # self.save_preferences(previous_pos_x, previous_pos_y, pos_x, pos_y)
                             print self.positions
-                            self.positions[previous_pos_x,previous_pos_y] = 0
-                            self.positions[pos_x,pos_y] = self.turn
+                            self.positions[previous_pos_x, previous_pos_y] = 0
+                            self.positions[pos_x, pos_y] = self.turn
                             print self.positions
                             self.turn = 1 + self.turn % 2
                             self.time += 1
                             self.last_moved_pawn = self.selected_pawn
                             succeeds = True
-
-            if succeeds:
-                self.ilasp.add_positive_example(self.selected_pawn.side,
-                                                previous_pos_x, previous_pos_y,
-                                                pos_x, pos_y,
-                                                self.time)
             else:
-                self.ilasp.add_negative_example(self.selected_pawn.side,
-                                                previous_pos_x, previous_pos_y,
-                                                pos_x, pos_y,
-                                                self.time)
+                self.ilasp.add_example_can_play(False, self.selected_pawn.side)
+            if succeeds:
+                self.ilasp.add_example_legal(True, self.selected_pawn.side,
+                                             previous_pos_x, previous_pos_y,
+                                             pos_x, pos_y)
+                self.ilasp.generate_hypothesis()
+            else:
+                self.ilasp.add_example_legal(False, self.selected_pawn.side,
+                                             previous_pos_x, previous_pos_y,
+                                             pos_x, pos_y)
+                self.ilasp.generate_hypothesis()
+
         self.unselect()
 
     def draw_board(self):
@@ -144,10 +147,10 @@ class Board:
                 self.fictive_selection_pos_y = pos_y
                 pygame.time.wait(100)
             else:
-                self.ilasp.add_negative_example(self.turn,
-                                                self.fictive_selection_pos_x, self.fictive_selection_pos_y,
-                                                pos_x, pos_y,
-                                                self.time)
+                self.ilasp.add_example_legal(False, self.turn,
+                                             self.fictive_selection_pos_x, self.fictive_selection_pos_y,
+                                             pos_x, pos_y)
+                self.ilasp.generate_hypothesis()
                 self.fictive_selection = False
         else:
             self.move_pawn_to(pos_x, pos_y)

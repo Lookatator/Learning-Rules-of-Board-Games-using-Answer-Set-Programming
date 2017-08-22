@@ -3,6 +3,9 @@
 role(player1, red).
 role(player2, blue).
 
+opponent_player(player1, player2).
+opponent_player(player2, player1).
+
 % describe the state of the game before any player plays
 holds(cell(coord(0,0..4), red),1).
 holds(cell(coord(1,0), red),1).
@@ -59,7 +62,10 @@ possible_move(coord(X1,X2),coord(Y1,Y2)) :- X1==Y1+1, X2==Y2+1, range1(X1), rang
 
 
 % describe what actions are legal or not.
-%legal(P, move(X,Y), T) :- possible_move(X,Y), holds(cell(X,S), T), holds(cell(Y,empty), T), role(P, S), time(T).
+%legal(P, move(X,Y), T) :- possible_move(X,Y), holds(cell(X,S), T), holds(cell(Y,empty), T), role(P, S), time(T), can_play(P, move, T).
+
+% can_play(P, move, T) :- can_play(P2, move, T-1), time(T), opponent_player(P, P2).
+
 
 legal(Player, move_pawn(Pawn, up_right), T) :- legal(Player, move(coord(X,Y),coord(X+1,Y-1)), T), holds(is_at(Pawn, coord(X,Y)), T), belongs_to(Pawn, Player), time(T).
 legal(Player, move_pawn(Pawn, up_left), T) :- legal(Player, move(coord(X,Y),coord(X-1,Y-1)), T), holds(is_at(Pawn, coord(X,Y)), T), belongs_to(Pawn, Player), time(T).
@@ -190,33 +196,41 @@ terminated(T+1) :- terminated(T), time(T).
 
 
 % everything that is done must be legal
-:- does(P,M,T), not legal(P,M,T).
+%:- does(P,M,T), not legal(P,M,T).
 
 % :- 0{terminated(T) : time(T)}0.
 
 %% turn-based game
 % a player cannot play twice
-:- does(P,M1,T), does(P,M2,T+1).
+%:- does(P,M1,T), does(P,M2,T+1).
 
 % the first player starts
 %1{does(player1,move_pawn(Pawn,Direction),1) : direction_domain(Direction), belongs_to(Pawn, player1)}1.
 
-#modeh(legal(var(player), move(var(x),var(y)), var(time))).
-#modeb(possible_move(var(x), var(y)), (positive)).
-#modeb(holds(cell(var(x),var(s)), var(time)), (positive)).
-#modeb(holds(cell(var(y),const(s)), var(time)), (positive)).
-#modeb(role(var(player),var(s)), (positive)).
-#modeb(time(var(time)), (positive)).
+legal(P,move(X,Y),T) :- can_play(P, move, T), extra(P,X,Y,T).
+can_play(player1,move,1).
+decrement_time(T, T-1) :- time(T).
+
+
+
+#bias(":- head(extra(P,X,Y,T)), body(can_play(P2,M,T2)).").
+#bias(":- head(extra(P,X,Y,T)), body(decrement_time(T1,T2)).").
+#bias(":- head(extra(P,X,Y,T)), body(opponent_player(P1,P2)).").
+#bias(":- head(can_play(P,move,T)), body(can_play(P,move,T)).").
+#bias(":- head(can_play(P,move,T)), body(holds(C,T)).").
+#bias(":- head(can_play(P,move,T)), possible_move(X,Y).").
 #bias(":- constraint.").
 
-#constant(s, red).
-#constant(s, empty).
-#constant(s, blue).
+
+
+
 
 #maxv(5).
-#max_penalty(7).
+#max_penalty(10).
 %#disallow_multiple_head_variables.
 
 
 
+%does(player1,move(coord(1,0),coord(2,1)),1).
+%time(1..2).
 
