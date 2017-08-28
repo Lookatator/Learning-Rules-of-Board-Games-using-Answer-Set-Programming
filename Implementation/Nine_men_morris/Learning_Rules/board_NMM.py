@@ -26,6 +26,7 @@ class Board:
         self.phase = 1
         self.count_p1_pawns_in_hand = 9
         self.count_p2_pawns_in_hand = 9
+        self.legal_remove_pawn = False
         with open("game_actions.txt", "w") as game_actions:
             game_actions.write("time(1).\n")
             game_actions.write("#show does(player1,move(Coord_1,Coord_2),1) : does(player1,move(Coord_1,Coord_2),1).")
@@ -299,30 +300,43 @@ class Board:
         pygame.time.wait(100)
 
     def place_green_pawn(self, position):
+        if not self.check_player_place_pawn(1, 1):
+            self.ilasp.add_example_legal_place_pawn(False, 1, position)
+            return
+
         if self.positions[tuple(position)] == 0:
             pawn = Pawn(position, 1, self.window)
             self.add_pawn(pawn)
-            self.turn += 1
             self.time += 1
             self.count_p1_pawns_in_hand -= 1
             self.update_phase()
+            self.ilasp.add_example_legal_place_pawn(True, self.turn, position)
             if self.is_in_mill(position):
-                print "IS IN MILL"
+                self.legal_remove_pawn = True
+            else:
+                self.turn = 1 + self.turn % 2
+        else:
+            self.ilasp.add_example_legal_place_pawn(False, 1, position)
+
 
     def place_red_pawn(self, position):
+        if not self.check_player_place_pawn(2, 1):
+            self.ilasp.add_example_legal_place_pawn(False, 2, position)
+            return
+
         if self.positions[tuple(position)] == 0:
             pawn = Pawn(position, 2, self.window)
             self.add_pawn(pawn)
-            self.turn += 1
             self.time += 1
             self.count_p2_pawns_in_hand -= 1
             self.update_phase()
-            print self.count_p1_pawns_in_hand
-            print self.count_p2_pawns_in_hand
-            if self.phase == 2:
-                print "NEW PHASE"
+            self.ilasp.add_example_legal_place_pawn(True, self.turn, position)
             if self.is_in_mill(position):
-                print "IS IN MILL"
+                self.legal_remove_pawn = True
+            else:
+                self.turn = 1 + self.turn % 2
+        else:
+            self.ilasp.add_example_legal_place_pawn(False, 2, position)
 
     def select_pawn(self, position):
         for pawn in self.list_pawns:
@@ -333,34 +347,87 @@ class Board:
         return self.selected_pawn is not None
 
     def move_pawn_to(self, position):
-        if self.selected_pawn.legal_move(position):
+        if not self.check_player_move(self.selected_pawn.side, 2):
+            self.ilasp.add_example_legal_move(False, self.selected_pawn.side, self.selected_pawn.position, position)
+            self.unselect()
+            return
+
+        if self.positions[tuple(position)] == 0 and self.selected_pawn.legal_move(position):
+            self.ilasp.add_example_legal_move(True, self.turn, self.selected_pawn.position, position)
             self.positions[tuple(self.selected_pawn.position)] = 0
             self.positions[tuple(position)] = self.selected_pawn.side
             self.selected_pawn.move_to(position)
+
+            if self.is_in_mill(position):
+                self.legal_remove_pawn = True
+            else:
+                self.turn = 1 + self.turn % 2
+        else:
+            self.ilasp.add_example_legal_move(False, self.turn, self.selected_pawn.position, position)
+
         self.unselect()
 
+    #TODO : take into account the fact that every opponent's pawn is in a mill
+    #TODO : two buttons remove green and red pawns ?
     def remove_pawn(self, position):
-        print self.list_pawns
         for pawn in self.list_pawns:
             if np.all(position == pawn.position):
+                player_side = 1 + pawn.side % 2
+                if not self.check_player_remove_pawn(player_side):
+                    self.ilasp.add_example_legal_remove_pawn(False, player_side, position)
+                    return
+                if self.is_in_mill(position):
+                    self.ilasp.add_example_legal_remove_pawn(False, player_side, position)
+                    return
                 pawn.undraw()
                 self.positions[tuple(position)] = 0
                 self.list_pawns.remove(pawn)
-        print self.list_pawns
+                self.turn = 1 + self.turn % 2
+                self.legal_remove_pawn = False
+                self.ilasp.add_example_legal_remove_pawn(True, player_side, position)
+                return
+        self.ilasp.add_example_legal_remove_pawn(False, self.turn, position)
 
-    def check_player_turn(self, player):
-        if self.turn == player:
-            # self.ilasp.add_example_can_play()
-            return True
-        else:
-            return False
-
-    def check_phase(self, phase):
-        # self.ilasp.add_example_can_play()
+    def check_player_place_pawn(self, player, phase):
         if self.phase == phase:
-            return True
+            self.ilasp.add_example_phase(True, self.phase)
+            if self.turn == player and not self.legal_remove_pawn:
+                self.ilasp.add_example_can_play(True, player, "place_pawn")
+                return True
+            else:
+                self.ilasp.add_example_can_play(False, player, "place_pawn")
+                return False
         else:
+            self.ilasp.add_example_phase(False, phase)
+            self.ilasp.add_example_can_play(False, player, "place_pawn")
             return False
+
+    def check_player_move(self, player, phase):
+        if self.phase == phase:
+            self.ilasp.add_example_phase(True, self.phase)
+            if self.turn == player and not self.legal_remove_pawn:
+                self.ilasp.add_example_can_play(True, player, "move")
+                return True
+            else:
+                self.ilasp.add_example_can_play(False, player, "move")
+                return False
+        else:
+            self.ilasp.add_example_phase(False, phase)
+            self.ilasp.add_example_can_play(False, player, "move")
+            return False
+
+    def check_player_remove_pawn(self, player):
+        if self.turn == player and self.legal_remove_pawn:
+            self.ilasp.add_example_can_play(True, player, "remove_pawn")
+            return True
+        elif self.legal_remove_pawn:
+            self.ilasp.add_example_can_play(False, player, "remove_pawn")
+            return False
+        else:
+            self.ilasp.add_example_can_play(False, 1 + player % 2, "remove_pawn")
+            self.ilasp.add_example_can_play(False, player, "remove_pawn")
+            return False
+
 
 
 def del_last_line():
