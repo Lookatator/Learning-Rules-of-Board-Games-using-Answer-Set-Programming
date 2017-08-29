@@ -53,7 +53,7 @@ For ASP problems, we will use some of the tools developed by the University of P
 We used the version 4.3.0 of \texttt{clingo} since this the one that ILASP uses.
 %TODO : reference manuel
 
-\subsection{\colorbox{yellow}{Optimization in clingo}}
+\subsection{Optimization in clingo}
 
 In \texttt{clingo}, it is possible to explain what kind of answer sets are optimal by using \textit{weak constraints}. A weak constraint has the following form:
 \begin{center}
@@ -194,11 +194,19 @@ In this part, $B$ is the logic program that represents the \textit{Background Kn
 
 \subsubsection{Brave Induction}
 
-A brave inductive task is a tuple $T_b=<B, E^+, E^->$ (where $E^+$ and $E^-$ are sets of atoms occurring in $B$) such that: an hypothesis $H$ is solution of $T_b$ iff there is an answer set $A$ of $B\cup H$ verifying $E^+\subseteq A$ and $E^-\cap A = \emptyset$
+\begin{definition}
+
+A brave inductive task is a tuple $T_b=<B, S_M, E^+, E^->$ where $E^+$ and $E^-$ are sets of atoms occurring in $B$. 
+
+\smallskip
+
+A hypothesis $H$ is solution of $T_b$ iff there is an answer set $A$ of $B\cup H$ verifying $E^+\subseteq A$ and $E^-\cap A = \emptyset$
 
 \smallskip
 
 We call $ILP_b(B,E^+,E^-)$ the set of hypotheses that are solutions of $T_b$. 
+
+\end{definition}
 
 \subsubsection{ASPAL encoding}
 
@@ -207,7 +215,7 @@ illustrate how to use the ASPAL encoding with clingo in the following example.\b
 
 First of all, we consider the background knowledge B:\newline
 \texttt{person(Nicolas). person(Pierre).\\
-play\_video games(Nicolas). play\_video\_games(Pierre). works(Nicolas).}\\
+play\_video\_games(Nicolas). play\_video\_games(Pierre). works(Nicolas).}\\
 
 And we take: $E^+=\{\texttt{good\_marks(Nicolas)}\}$ and $E^-=\{\texttt{good\_marks(Pierre)}\}$
 
@@ -237,13 +245,23 @@ good\_marks(P) :- works(P), play\_video\_games(+P), rule(4).}
 
 \subsection{Cautious Inductive Logic Programming}
 
-A cautious inductive task is a tuple $T_c=<B, E^+, E^->$ (where $E^+$ and $E^-$ are sets of atoms occurring in $B$) such that: an hypothesis $H$ is solution of $T_c$ iff 
+\begin{definition}
+
+A cautious inductive task is a tuple $T_c=<B, E^+, E^->$ where $E^+$ and $E^-$ are sets of atoms occurring in $B$.
+
+\smallskip
+
+A hypothesis $H$ is solution of $T_c$ iff 
 \begin{itemize}
 \item $B\cup H$ has at least one answer set
 \item every answer set of $B\cup H$ verifies $E^+\subseteq A$ and $E^-\cap A = \emptyset$
 \end{itemize}
 
+\smallskip
+
 We call $ILP_c(B,E^+,E^-)$ the set of hypotheses that are solutions of $T_c$. 
+
+\end{definition}
 
 %TODO pas possible avec clingo
 
@@ -263,8 +281,13 @@ We say that an interpretation $I$ of $B$ extends a partial interpretation $<e^+,
 
 \begin{definition}
 
-A \textit{Learning from Answer Sets task} is a tuple $T_{LAS}=<B, S_M, E^+, E^->$ (where $E^+$ and $E^-$ are sets of partial interpretations) such that: a hypothesis $H$ is solution of $T_{LAS}$ iff 
+A \textit{Learning from Answer Sets task} is a tuple $T_{LAS}=<B, S_M, E^+, E^->$ where $S_M$ is the hypothesis space; and $E^+$ and $E^-$ are sets of partial interpretations. 
+
+\smallskip
+
+An hypothesis $H$ is solution of $T_{LAS}$ iff 
 \begin{itemize}
+\item $H\subseteq S_M$
 \item For all  $<e^+,e^->\in E^+$, there is an answer set of $B\cup H$ that extends $<e^+,e^->$
 \item For all  $<e^+,e^->\in E^-$, there are no answer sets of $B\cup H$ that extend $<e^+,e^->$
 \end{itemize}
@@ -274,7 +297,86 @@ We call $ILP_{LAS}(B,S_M,E^+,E^-)$ the set of hypotheses that are solutions of $
 
 \begin{example}
 
+For example, we consider the following background knowledge $B$:
+
+\texttt{student(Nicolas). \% Nicolas works and sleeps\\
+works(Nicolas).\\
+sleeps(Nicolas).\\
+\\
+student(Pierre). \% Pierre only works\\
+works(Pierre). \\
+\\
+student(Jean). \% Jean only sleeps\\
+sleeps(Jean). \\
+\\
+1\{good\_mark(P); bad\_mark(P)\}1 :- student(P). \% a student can have a either \\
+											\% a good or a bad mark}
+											
+with the following hypothesis space $S_M$: \\
+$\{$ \texttt{good\_mark(P) :- student(P).\\
+good\_mark(P) :- student(P), sleeps(P).\\
+good\_mark(P) :- student(P), works(P).\\
+good\_mark(P) :- student(P), works(P), sleeps(P).} $\}$\\
+and the following positive and negative examples: \\$E^+=\{<\{\texttt{bad\_mark(pierre),bad\_mark(jean)}\},\emptyset>\}$ \\and $E^-=\{<\{\texttt{bad\_mark(nicolas)}\},\emptyset>\}$.
+
+\bigskip
+
+First, $\emptyset$ is not a valid solution, as $\emptyset\cup H$ has an answer set which contains $\texttt{bad\_mark(nicolas)}$ and which consequently extends the negative example. With the first hypothesis, there is an answer set that satisfies the positive example, but there is also an answer set that extends the negative example. With the next two hypotheses, there are no answer sets that satisfy the negative example, but the positive example is never satisfied. With the last hypothesis, Nicolas is sure to have a good grade (the negative example is not extended by any answer set), and there is an answer set that contains both \texttt{bad\_mark(pierre)} and \texttt{bad\_mark(jean)}.
+
+\bigskip
+
+Thus $ILP_{LAS}(B,S_M,E^+,E^-)=\{\texttt{good\_mark(P) :- student(P), works(P), sleeps(P).}\}$
+
 \end{example}
+
+\begin{remark}
+
+Every brave or cautious inductive task is a Learning from Answer Sets task. But the inverse is not true.
+
+%TODO : reference paper
+%TODO : proof ? in appendix ?
+
+\end{remark}
+
+\begin{proof}
+
+\proofpart{1}{A brave inductive task is a Learning from Answer Sets task}
+We consider the following brave inductive task: $T_b=<B,S_M,$ $\{e^+_1, e^+_2,...,e^+_m\},$ $\{e^-_1,...,e^-_n\}>$, and the following Learning from Answer Sets task: $T_{LAS}=<B,S_M,$ $\{p^+\},$ $\emptyset>$ where $p^+=<\{e^+_1, e^+_2,...,e^+_m\},$ $\{e^-_1,...,e^-_n\}>$.
+
+\smallskip
+
+\begin{tabular}{cc}
+\makecell{An hypothesis $H$ is solution of $T_{LAS}$ iff} & \makecell[l]{ $H\subseteq S_M$ and there is an answer set $A$ of\\ $B\cup H$ such that $A$ extends $p^+$}\\\\
+\makecell[r]{iff} & \makecell[l]{ $H\subseteq S_M$ and there is an answer set $A$ of\\ $B\cup H$ such that $A$ extends $p^+$}\\\\
+\makecell[r]{iff} & \makecell[l]{ $H\subseteq S_M$ and there is an answer set $A$ of\\ $B\cup H$ that contains all the $e^+_i$ and that \\does not contain any of the  $e^-_i$}\\\\
+\makecell[r]{iff} & \makecell[l]{ $H$ is solution of $T_b$}
+\end{tabular}
+
+\bigskip
+
+So, the two tasks $T_b$ and $T_{LAS}$ are equivalent. Thus, we can construct a Learning from Answer Sets task from every brave inductive task.
+ 
+\proofpart{2}{A cautious inductive task is a Learning from Answer Sets task}
+ 
+We consider the following cautious inductive task: $T_c=<B,S_M,$ $\{e^+_1, e^+_2,...,e^+_m\},$ $\{e^-_1,...,e^-_n\}>$, and the following Learning from Answer Sets task: $T_{LAS}=<B,S_M,\emptyset,$ $\{p^-_1,...,p^-_m, q^-_1,...,q^-_n\}>$ where where for all $i$, $p^-_i=<\emptyset,\{e^+_i\}>$ and $q^-_i=<\{e^-_i\},\emptyset>$.
+
+\smallskip
+
+We can notice that an answer set $A$ extends $p^-_i$ iff $e^+_i\not \in A$. In addition, $A$ extends $q^-_i$ iff $e^-_i \in A$.
+
+\smallskip
+
+\begin{tabular}{cc}
+\makecell{An hypothesis $H$ is solution of $T_{LAS}$ iff} & \makecell[l]{ $H\subseteq S_M$ and for every answer set $A$ of\\ $B\cup H$, $A$ does not extend $p^-_i$ and $q^-_i$\\ (for all $i$)}\\\\
+\makecell[r]{iff} & \makecell[l]{$H\subseteq S_M$ and for every answer set $A$ of\\ $B\cup H$, $A$ contains $e^+_i$ and \\does not contain $e^-_i$ (for all $i$)}\\\\
+\makecell[r]{iff} & \makecell[l]{ $H$ is solution of $T_c$}\\
+\end{tabular}
+
+\bigskip
+
+So, the two tasks $T_c$ and $T_{LAS}$ are equivalent. Thus, we can construct a Learning from Answer Sets task from every cautious inductive task.
+
+\end{proof}
 
 \subsubsection{Learning from Ordered Answer Sets}
 
@@ -282,17 +384,21 @@ The definition of Learning from Answer Sets task can be extended to take into ac
 
 \begin{definition}
 
-We will call \textit{ordering example} every pair $<e_1,e_2>$ of partial interpretations. We define two ways for an ASP program to cover an ordering example:
+We will call \textit{ordering example} every pair $<e_1,e_2>$ of partial interpretations. These are two ways for an ASP program to cover an ordering example:
 \begin{itemize}
-\item An ordering examples is \textit{bravely covered} by an ASP program $P$ iff \textbf{there are} two answer sets $A_1$ and $A_2$ such that $A_1$ extends $e_1$, $A_2$ extends $e_2$ and $A_1$ is preferred to $A_2$.
-\item An ordering example is \textit{cautiously covered} by an ASP program $P$ iff \textbf{for every} answer sets $A_1$ and $A_2$ such that $A_1$ extends $e_1$, $A_2$ extends $e_2$ and $A_1$ is preferred to $A_2$.
+\item An ordering example is \textit{bravely covered} by an ASP program $P$ iff \textbf{there are} two answer sets $A_1$ and $A_2$ such that $A_1$ extends $e_1$, $A_2$ extends $e_2$ and $A_1$ is preferred to $A_2$.
+\item An ordering example is \textit{cautiously covered} by an ASP program $P$ iff \textbf{for every} answer sets $A_1$ and $A_2$ such that $A_1$ extends $e_1$ and $A_2$ extends $e_2$ we have : $A_1$ is preferred to $A_2$.
 \end{itemize}
 \end{definition}
 
 Now we can give the definition for a Learning from Ordered Answer Sets task \citep{law2015weak}:
 
 \begin{definition}
-A \textit{Learning from Ordered Answer Sets task} is a tuple $T_{LOAS}=<B, S_M, E^+, E^-,O^{brave}, O^{cautious}>$ (where $E^+$ and $E^-$ are sets of partial interpretations and $O^{brave}$ and $O^{cautious}$ are sets of ordering examples) such that: every partial interpretation that appears in $O^{brave}$ and $O^{cautious}$ is in $E^+$, and a hypothesis $H$ is solution of $T_{LOAS}$ iff 
+A \textit{Learning from Ordered Answer Sets task} is a tuple $T_{LOAS}=<B, S_M, E^+, E^-,O^{brave}, O^{cautious}>$ (where $<B,S_M, E^+, E^->$ is a Learning from Answer Sets task, and $O^{brave}$ and $O^{cautious}$ are sets of ordering examples) such that: every partial interpretation that appears in $O^{brave}$ and $O^{cautious}$ is in $E^+$.
+
+\smallskip
+
+A hypothesis $H$ is solution of $T_{LOAS}$ iff 
 \begin{itemize}
 \item $H$ is a solution of $T_{LAS}=<B, S_M, E^+, E^->$.
 \item Every ordering example in $O^{brave}$ is bravely covered by $B\cup H$
@@ -303,25 +409,126 @@ We call $ILP_{LOAS}(B,S_M,E^+,E^-,O^{brave},O^{cautious})$ the set of hypotheses
 \end{definition}
 
 \begin{example}
+The week preceding an exam, a student has to decide if he will work or not. And at the end, he will get a mark that is good or not: $B=\{\texttt{0\{works\}1. 
+0\{good\_mark\}1.}\}$
+
+\bigskip
+
+We define three positive examples: $e_1 = <\{\texttt{good\_mark}\},\{\texttt{works}\}>$, $e_2 = <\{\texttt{good\_mark},\texttt{ works}\},\emptyset>$ and $e_3 = <\emptyset,\{\texttt{good\_mark}\}>$. $E^+=\{e_1, e_2, e_3\}$. Besides, we take $E^-=\emptyset$.
+
+\bigskip
+
+Now we define the student's preferences:
+\begin{itemize}
+\item For him, having a good mark without working is better than having a good mark by working hard: $O^{brave}=\{<e_1,e_2>\}$
+\item The student always prefers having a good grade without working than having a bad grade: $O^{cautious}=\{<e_1,e_3>\}$
+\end{itemize}
+
+Finally, we define the hypothesis space $S_M$:\\
+$\{$ \texttt{:$\sim$ not works.[-1@1]\\
+:$\sim$ good\_mark.[-1@1]\\
+:$\sim$ not works, good\_mark.[-1@1]} $\}$\\
+
+\bigskip
+
+With the first hypothesis only, the answer set $A_1=\{$\texttt{good\_mark}$\}$ extends $e_1$, and $A_3=\emptyset$ is an other answer set that extends $e_3$. In this case, $cost_1(A_1)=cost_1(A_3)=-1$, so the ordering example in $O^{cautious}$ is not cautiously covered.
+
+\bigskip
+
+With the second hypothesis only, the only answer set that extends $e_1$ is $A_1=\{$\texttt{good\_mark}$\}$, and $A_2=\{$\texttt{good\_mark}$,$ \texttt{works}$\}$ is the only answer set that extends $e_2$. In this case, $cost_1(A_1)=cost_1(A_2)=-1$, so the ordering example in $O^{brave}$ is not bravely covered.
+
+\bigskip
+
+The last hypothesis respects all the brave and cautious orderings. Indeed $cost_1(A_1)=-1$ whereas for every answer set $A$ different form $A_1$, we have: $cost_1(A)=0$. But this is not the only hypothesis in $ILP_{LOAS}(B,S_M,E^+,E^-)$, as $H=\{$\texttt{:$\sim$ not works.[-1@1], :$\sim$ good\_mark.[-1@1]}$\}$ is also a solution (of length 2).
+
+\bigskip
+
+To conclude \texttt{:$\sim$ not works, good\_mark.[-1@1]} is \textbf{an} optimal (shortest) hypothesis of  $ILP_{LOAS}(B,S_M,E^+,E^-)$
 
 \end{example}
 
 \subsubsection{Learning from Context Dependant Answer Sets}
 %TODO : talk about ILASP --2i
 
-The two tasks defined above can be generalized by adding a \textit{context} to every partial interpretation \citep{law2016context}. A \textit{context} is an ASP program that does not contain any weak constraint or any other statement used to classify answer sets. Instead of containing partial interpretations, $E^+$ and $E^-$ contain tuples $<<e^+,e^->,C>$ where $C$ is the \textit{context} of the partial interpretation.  
+The task defined above can be generalized by adding a \textit{context} to every partial interpretation \citep{law2016context}. A \textit{context} is an ASP program that does not contain any weak constraint or any other statement used to classify answer sets. Instead of containing partial interpretations, $E^+$ and $E^-$ contain tuples $<<e^+,e^->,C>$ where $<e^+,e^->$ is a partial interpretation, and $C$ is the \textit{context} of this partial interpretation. 
+
+\bigskip
+
+As the definitions of positive and negative examples have been generalized by adding contexts, we need to extend the definition of an ordering example \citep{law2016context}.
 
 \begin{definition}
 
+We will call \textit{Context-Dependant Ordering Example} every pair $<<e_1,C_1>,<e_2,C_2>>$ where $e_1$ and $e_2$ are partial interpretations, and $C_1$ and $C_2$ are respectively the contexts of $e_1$ and $e_2$. These are two ways for an ASP program to cover an ordering example:
+\begin{itemize}
+\item An ordering example is \textit{bravely covered} by an ASP program $P$ iff \textbf{there is} an answer set $A_1$ of $P\cup C_1$ and \textbf{there is} an answer set $A_2$ of $P\cup C_2$ such that $A_1$ extends $e_1$, $A_2$ extends $e_2$ and $A_1$ is preferred to $A_2$.
+\item An ordering example is \textit{cautiously covered} by an ASP program $P$ iff \textbf{for every} answer set $A_1$ of $P\cup C_1$ and \textbf{every} answer set $A_2$ of $P\cup C_2$ such that $A_1$ extends $e_1$ and $A_2$ extends $e_2$, we have: $A_1$ is preferred to $A_2$.
+\end{itemize}
+
+\end{definition}
+%TODO : coverage ????
+Now that we have a definition for Context-Dependant Ordering Examples, for brave coverage and for cautious coverage, the \textit{Learning from Context Dependant Answer Sets task} can be defined.
+
+\begin{definition}
+A \textit{Learning from Context Dependant Answer Sets task} is a tuple $T_{LOAS}^{Context}=<B, S_M, E^+, E^-,O^{brave}, O^{cautious}>$, where $S_M$ is the hypothesis space; $E^+$ and $E^-$ are sets of tuples $<<e^+,e^->,C>$ containing a partial interpretation $<e^+,e^->$ and a context $C$; and $O^{brave}$ and $O^{cautious}$ are sets of ordering examples such that: every partial interpretation that appears in $O^{brave}$ and $O^{cautious}$ is in $E^+$.
+
+\smallskip
+
+A hypothesis $H$ is solution of $T_{LOAS}$ iff 
+\begin{itemize}
+\item $H\subseteq S_M$
+\item $\forall <<e^+,e^->,C>\in E^+$, there is an answer set of $B\cup H \cup C$ that extends $<e^+,e^->$
+\item $\forall <<e^+,e^->,C>\in E^-$, there is no answer set of $B\cup H \cup C$ that extends $<e^+,e^->$
+\item Every ordering example in $O^{brave}$ is bravely covered by $B\cup H$
+\item Every ordering example in $O^{cautious}$ is cautiously covered by $B\cup H$
+\end{itemize}
+
+We call $ILP_{LOAS}^{Context}(B,S_M,E^+,E^-,O^{brave},O^{cautious})$ the set of hypotheses that are solutions of $T_{LOAS}^{Context}$.
 \end{definition}
 
 \begin{example}
+We consider a student in three different contexts: the empty context ($C_1=\emptyset$), during exams ($C_2=\{\texttt{exams}\}$) and during exams when the student is exhausted ($C_3=\{\texttt{exams, exhausted}\}$).
+
+\bigskip
+
+When the context is empty, the student sometimes does not study. So $e^+_1=<<\emptyset, \{\texttt{study}\}>,C_1>$ is a positive example. Moreover, if he is exhausted and in a period of exams, he is not always able to study. As a consequence, $e^+_2=<<\emptyset, \{\texttt{study}\}>,C_3>$ is an other positive example. We take $E^+=\{e^+_1,e^+_2\}$.
+
+\bigskip
+
+Besides, this student always works for exams (except in exceptional cases). Thus $e^-=<<\emptyset, \{\texttt{study}\}>,C_2>$ is a negative example. And we take $E^-=\{e^-\}$.
+
+\bigskip
+
+We choose to study $ILP_{LOAS}^{Context}(B, S_M, E^+, E^-, \emptyset, \emptyset)$ where $B=\emptyset$ and the hypothesis space $S_M$ is:\\
+$\{$ \texttt{study.\\
+study :- exams.\\
+study :- not exhausted.\\
+study :- exams, not exhausted.} $\}$
+
+\bigskip
+
+First of all, $\emptyset$ is not a valid hypothesis, as $B\cup \emptyset \cup C_2$ has only one answer set $\{\texttt{exams}\}$ and it does not contain \texttt{study} ($e^-$ is not respected). 
+
+\bigskip
+
+Then, with the first hypothesis (called $H_1$), the student would study every time (even during exams), so the negative example $e^-$ is covered. However, $B \cup H_1 \cup C_1$ has only one answer set: $\{\texttt{study}\}$ so the first positive example $e^+_1$ is not respected. 
+	
+\bigskip
+
+According to the second hypothesis $H_2=\{\texttt{study :- exams.}\}$, the student studies if there is an exam, so $e^-$ is once again respected. In addition, $\emptyset$ is the unique answer set of $B\cup H_2 \cup C_1$, which proves that $e^+_1$ is respected this time. But $B\cup H_2 \cup C_3$ has only one answer set: $\{\texttt{study, exams, exhausted}\}$ and it does not extend the partial interpretation in $e^+_2$. As a consequence, the positive example $e^+_2$ is not covered.
+
+\bigskip
+
+With the third hypothesis $H_3$, the second positive example $e^+_2$ is covered, but the first one $e^+_1$ is not. Indeed, the unique answer set of $B\cup H_3 \cup C_1$ is$\{\texttt{study}\}$ and it does not extend $<\emptyset, \{\texttt{study}\}>$.
+
+\bigskip
+
+Finally, with the last hypothesis, all the positive and negative examples are respected. Besides, every union of 2 or more rules in $S_M$ does not cover all the positive examples. So $\{$\texttt{study :- exams, not exhausted.}$\}$ is the only valid hypothesis. Thus, $ILP_{LOAS}^{Context}(B, S_M, E^+, E^-, \emptyset, \emptyset) = \{\:\{\texttt{study :- exams, not exhausted.}\}\:\}$
 
 \end{example}
 
 \subsubsection{ILASP}
 
-ILASP is a tool developed at Imperial College London that is capable of finding optimal hypotheses for Learning from Answer Sets tasks. We only need to give it: the background knowledge with the \texttt{clingo} syntax, and the mode declaration for the variables that can appear in the head or in the body of a rule in the hypothesis. We can also specify the positive and negative partial interpretations of the task.
+ILASP is a tool developed at Imperial College London that is capable of finding the optimal hypothesis for Learning from Answer Sets tasks. We only need to give it: the background knowledge with the \texttt{clingo} syntax, and the mode declaration for the variables that can appear in the head or in the body of a rule in the hypothesis. We can also specify the positive and negative partial interpretations of the task. By default, ILASP considers that the optimal hypothesis is the one that contains the least number of atoms.
 
 \paragraph{Learning rules of games/environment}
 
@@ -329,32 +536,29 @@ ILASP has been used for learning the rules of Sudoku. Also, a simulated agent in
 
 \paragraph{Learning weak constraints}
 
-ILASP can also be used to solve Learning from Ordered Answer Sets tasks
+ILASP can also be used to solve Learning from Ordered Answer Sets tasks.
 
 %TODO : cite second paper from Mark
 
 \smallskip
 
-Do to so, we specify the partial interpretations that belong to $E^+$ and we give them names (like \texttt{pos1}, \texttt{pos2}...). Then there are two ways to specify the ordering relations between some answer sets:
-\begin{itemize}
-\item 
-\item 
-\end{itemize}
-
-\paragraph{Learning from Context Dependant Answer Sets} 
-
-Instead of containing partial interpretations, $E^+$ and $E^-$ contain tuples $<<e^+,e^->,C>$ where $C$ is a \textit{context}. 
+Do to so, we specify the partial interpretations that belong to $E^+$ and we give them names (like \texttt{pos1}, \texttt{pos2}...). Then we can define the ordering examples and we declare if we want them to be bravely or cautiously covered. 
 
 \smallskip
 
-We say that an hypothesis $H$ is solution of $T^{Context}_{LAS}=<B,S_M,E^+,E^->$ iff
-\begin{itemize}
-\item for all $<< e^+ , e^->, C >\in E^+$, there is an Answer Set $A$ of $B \cup H \cup C$ such that $A$ extends $< e^+ , e^- >$
+Moreover, the maximal priority of the weak constraints in the hypothesis space and the their weight can be adjusted.
 
+\smallskip
 
-\item for all $<< e^+ , e^->, C >\in E^+$, there are no Answer Set $A$ of $B \cup H \cup C$ such that $A$ extends $< e^+ , e^- >$
+ILASP can find the optimal (with the least number of atoms by default) weak constraint that respects the declaration mode and that satisfies all the orderings.
+%\begin{itemize}
+%\item If we want $<\texttt{pos1},\texttt{pos2}>$ to be bravely covered by the program, we write \texttt{\#brave\_ordering(pos1, pos2).}
+%\item If we want $<\texttt{pos1},\texttt{pos2}>$ to be cautiously covered by the program, we write \texttt{\#cautious\_ordering(pos1, pos2).}
+%\end{itemize} 
 
-\end{itemize}
+\paragraph{Learning from Context Dependant Answer Sets} 
+
+We can add a context to every positive or negative example, ILASP is capable of finding the optimal solution of a Learning from Context Dependant Answer Sets task.
 
 \paragraph{Learning from Noisy Examples}
 
@@ -362,7 +566,7 @@ ILASP (v3) is also able to learn from noisy data: it can learn an hypothesis tha
 
 \smallskip
 
-ILASP will minimize the sum of the length of the hypothesis and of the weights of the uncovered examples (the weight of an example reflects its importance).
+Then, ILASP will minimize the sum of the length of the hypothesis and of the weights of the uncovered examples (the weight of an example reflects its importance).
 
 %TODO : décrire l'algo utilisé par ILASP ? Ou comparaison des différentes version d'ILASP sur le fonctionnement de l'algo
 %TODO : 

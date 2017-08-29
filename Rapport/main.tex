@@ -33,6 +33,15 @@
  commentchar=*        % comment character
 }
 
+\makeatletter
+\newcommand{\proofpart}[2]{%
+  \par
+  \addvspace{\medskipamount}%
+  \noindent\emph{Part #1: #2}\par\nobreak
+  \addvspace{\smallskipamount}%
+  \@afterheading
+}
+\makeatother
 % load some macros
 \input{notation}
 
@@ -340,30 +349,129 @@ Goal: learn the preferences of the player by using Weak Constraints.
 
 %TODO : not very interesting isn't it ? cos' it could be done just by counting them.
 
-\subsection{Discover the sates of the board that the player chooses}
+\subsection{Discover the states of the board that the player chooses}
 
-Talk about the the drawbacks of last subsection: does not give enough information. So now we learn what kind of configuration the player prefers in a game. 
+%TODO : Talk about the the drawbacks of last subsection: does not give enough information. So now we learn what kind of configuration the player prefers in a game. 
 
 %TODO : parler des limitations de la section précédente.
 % certes on pourrait lier les deux: does() :- holds(), holds(),...
 % Mais serait trop computationally expensive ???
 
-\subsubsection{How to represent patterns}
+\subsubsection{General Idea}
 
-How to represent patterns, how to combine them. Example of Five Field Kono
+We consider that the game is in a state $s_{i,t}$ at time $t$. After one player performs an action $a_{i,j,t}$, the game is in a new state $s_{j,t+1}$ (at time $t+1$).
 
-% 
+%TODO : IMAGE
+\smallskip
+
+The idea would be to learn some weak constraints explaining why this action $a_{i,j,t}$ is the best according to the player. In particular, we could learn:
+\begin{itemize}
+\item why the action $a_{i,j,t}$ is better than all the others: $a_{i,x,t}$ for $x\neq j$. %TODO : Problem with learning actions 
+\item why the new state $s_{j,t}$ is better than all the others: $s_{x,t}$ for $x\neq j$. To do so, we will look at the small patterns that appear on small sections of board (see Figure \ref{fig:FFK_pattern}). 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.4\hsize]{figures/FFK_pattern.png}
+\hspace{0.1\hsize}
+\includegraphics[width = 0.4\hsize]{figures/FFK_include_pattern.png}
+\caption{Example of small pattern (on the left) that appears twice on the board (on the right) for Five Field Kono}
+\label{fig:FFK_pattern}
+\end{figure}
+
+\end{itemize}
+
+
+
+\subsubsection{How to represent patterns in Five Field Kono}
+
+We first define some predicates to represent the most basic patterns, that we will call \textit{elementary patterns}.
+
+\smallskip
+
+We focus on those that are the most relevant \textbf{to the blue player}. Thus, knowing that the pawns only move diagonally, and that the blue pawns tend to move to the right (considering the initial configuration in figure \ref{fig:FFK_initial}), we only consider the elementary patterns described in table \ref{elementary_patterns}.
+
+%TODO : enlever le temps/remettre le temps je ne sais pas
+%TODO : insister sur le fait qu'on se place du point de vue du joueur bleu
+
+\begin{table}[h]
+\centering
+
+\begin{tabular}{c|c}
+\raisebox{-.5\height}{\includegraphics[width=0.2\hsize]{figures/FFK_pattern1.png}} & 
+
+\makecell[l]{
+Two \textbf{adjacent} pawns:\\
+\texttt{adjacent(bottom, blue, c1, c2)}\\
+We have an analogue definition in case \texttt{c2} is to the right of \texttt{c1}.\\
+We do not need to define \texttt{adjacent} if \texttt{c2} is to the right or to the \\
+left of \texttt{c1} as  \texttt{adjacent(top, blue, c1, c2)} and \\
+\texttt{adjacent(left, blue, c1, c2)} are respectively equivalent to \\
+\texttt{adjacent(bottom, blue, c2, c1)} and \\
+\texttt{adjacent(right, blue, c2, c1)}
+}\\
+\\
+\hline
+\\
+\raisebox{-.5\height}{\includegraphics[width=0.2\hsize]{figures/FFK_pattern2.png}} & 
+\makecell[l]{
+Two rival pawns that are colliding:\\
+\texttt{diagonal\_collision(down\_right, red, c1, c2)}\\
+We have a similar definition, for the \texttt{up\_right} direction.
+}\\
+\\
+\hline
+\\
+\raisebox{-.5\height}{\includegraphics[width=0.2\hsize]{figures/FFK_pattern4.png}} & 
+\makecell[l]{
+\texttt{diagonal\_collision(down\_right, empty, c1, c2)}\\
+We have a similar definition, for the \texttt{up\_right} direction.
+}\\
+\\
+\hline
+\\
+\raisebox{-.5\height}{\includegraphics[width=0.2\hsize]{figures/FFK_pattern5.png}} & 
+\makecell[l]{
+\texttt{diagonal\_collision(down\_right, blue, c1, c2)}\\
+We have a similar definition, for the \texttt{up\_right} direction.
+}
+\end{tabular}
+\caption{Elementary patterns that are considered}
+\label{elementary_patterns}
+\end{table}
+
+%TODO : How to represent patterns, how to combine them. Example of Five Field Kono
+
+%TODO : example with images
+
+
+
+\bigskip
+
+Now we can build more complex configurations by combining these elementary patterns.
+
+\begin{example}
+In figure \ref{fig:FFK_pattern}, the configuration can be represented by the following formula:\\
+\texttt{adjacent(bottom, blue, c1, c2)} $\bigwedge$ \texttt{diagonal\_collision(down\_right, empty, c1, c4)} $\bigwedge$ \texttt{diagonal\_collision(up\_right, red, c2, c4)}
+\end{example}
+
+%TODO : parler des weak constraints -> préférences -> weight -1 ->
+
+\subsubsection{Implementation}
+
+% What the program does.
 
 \subsubsection{Learning preferred patterns}
 
-Test results with program, with time results.
+%TODO : Test results with program, with time results.
 
-Problem: one simple pattern can cover many more complex patterns
+%TODO : Problem: one simple pattern can cover many more complex patterns
+
+%TODO : ajouter du weight à une weak constraint à chaque fois qu'elle apparait.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\subsubsection{Autonomous Player}
 
-
+%TODO : can play itself / evaluation very easy.
 
 \chapter{Evaluation}
 
