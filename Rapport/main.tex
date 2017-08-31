@@ -101,52 +101,12 @@ Your abstract.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\input{chapters/background}
+\include{chapters/background}
 
 \include{chapters/two_player_games}
 
+\include{chapters/rules}
 
-
-
-% tableau: gauche -> règle en anglais, droite -> rule en ASP
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Learning rules for board Games}
-
-\section{General Idea}
-
-We observe people playing the game, and \\
-if they do a valid action - positive example\\
-if they do an action that is not legal - negative example\\
-
-\bigskip
-
-goal : learning legal/3 predicate (according to the structure of GDL)
-
-\bigskip
-
-source:  has been made in ILASP (paper reference)%(or concurrent) papers 
-
-\bigskip
-
-Learning predicate wins/2 ?
-
-\section{Evaluation}
-
-Evaluation at least for Five Field Kono.
-
-\bigskip
-
-\begin{tabular}{|c|c|c|}
-\hline 
-added example & hypothesis found & time (s) \\ 
-\hline 
-\hline
-• & • & • \\ 
-\hline 
-• & • & • \\ 
-\hline 
-\end{tabular} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Learning strategies}
@@ -450,7 +410,7 @@ Now we can build more complex configurations by combining these elementary patte
 
 \begin{example}
 In figure \ref{fig:FFK_pattern}, the configuration can be represented by the following formula:\\
-\texttt{adjacent(bottom, blue, c1, c2)} $\bigwedge$ \texttt{diagonal\_collision(down\_right, empty, c1, c4)} $\bigwedge$ \texttt{diagonal\_collision(up\_right, red, c2, c4)}
+\texttt{adjacent(bottom, blue, c1, c2)} $\bigwedge$ \texttt{diagonal\_collision(down\_right, empty, c1, c4)} $\bigwedge$ \texttt{diagonal\_collision(up\_right, red, c2, c3)}
 \end{example}
 
 %TODO : parler des weak constraints -> préférences -> weight -1 ->

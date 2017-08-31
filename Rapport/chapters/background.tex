@@ -128,11 +128,9 @@ The rules of the graph game on figure \ref{fig:agent} are the following:
 \label{fig:agent}
 \end{figure}
 
-\subsection{Formalizing these rules}
+\subsection{Describing the game in ASP}
 
 \begin{itemize}
-
-
 
 \item We start by defining the different players in the game by using the predicate \texttt{role}. Here, there is only one player so we include the fact: \texttt{role(player).}
 
@@ -160,11 +158,15 @@ The rules of the graph game on figure \ref{fig:agent} are the following:
 \texttt{goal(player,  0,T) :- holds(hole, player, T).}
 \end{itemize}
 
-We will follow the following Game Description Language (GDL) restriction: the predicate \texttt{does} does not appear in the definition of \texttt{terminal}, \texttt{goal} or \texttt{legal}.
+All these rules are \textbf{describing} the game in ASP.
 
-\subsection{Finding a solution to the game}
+\bigskip
 
-We have just defined a few predicates to translate the rules of the game in ASP. Now we want to simulate the game and to find winning sequences of moves.
+We will respect the following Game Description Language (GDL) restriction: as long as we \textbf{describe} the game in ASP (and do not want to \textbf{simulate} a game play), the predicate \texttt{does} only appears in rule bodies, and does not appear in the definition of \texttt{terminal}, \texttt{goal} or \texttt{legal}.
+
+\subsection{Finding a solution to the game/Simulating a gameplay}
+
+We have just defined a few predicates to translate the rules of the game in ASP. Now we want to \textbf{simulate} a game play and find winning sequences of moves.
 \begin{itemize}
 \item First of all, the player can do only one move at every time step (as long as the game is not finished).\newline
 \texttt{1\{does(player,go(left),T);does(player,go(right),T)\}1 :- not terminated(T).}\\
@@ -346,10 +348,10 @@ We consider the following brave inductive task: $T_b=<B,S_M,$ $\{e^+_1, e^+_2,..
 \smallskip
 
 \begin{tabular}{cc}
-\makecell{An hypothesis $H$ is solution of $T_{LAS}$ iff} & \makecell[l]{ $H\subseteq S_M$ and there is an answer set $A$ of\\ $B\cup H$ such that $A$ extends $p^+$}\\\\
-\makecell[r]{iff} & \makecell[l]{ $H\subseteq S_M$ and there is an answer set $A$ of\\ $B\cup H$ such that $A$ extends $p^+$}\\\\
-\makecell[r]{iff} & \makecell[l]{ $H\subseteq S_M$ and there is an answer set $A$ of\\ $B\cup H$ that contains all the $e^+_i$ and that \\does not contain any of the  $e^-_i$}\\\\
-\makecell[r]{iff} & \makecell[l]{ $H$ is solution of $T_b$}
+An hypothesis $H$ is solution of $T_{LAS}$ iff & \makecell[tl]{ $H\subseteq S_M$ and there is an answer set $A$ of\\ $B\cup H$ such that $A$ extends $p^+$}\\\\
+\makecell[r]{iff} & \makecell[tl]{ $H\subseteq S_M$ and there is an answer set $A$ of\\ $B\cup H$ such that $A$ extends $p^+$}\\\\
+\makecell[r]{iff} & \makecell[tl]{ $H\subseteq S_M$ and there is an answer set $A$ of\\ $B\cup H$ that contains all the $e^+_i$ and that \\does not contain any of the  $e^-_i$}\\\\
+\makecell[r]{iff} & \makecell[tl]{ $H$ is solution of $T_b$}
 \end{tabular}
 
 \bigskip
@@ -367,9 +369,9 @@ We can notice that an answer set $A$ extends $p^-_i$ iff $e^+_i\not \in A$. In a
 \smallskip
 
 \begin{tabular}{cc}
-\makecell{An hypothesis $H$ is solution of $T_{LAS}$ iff} & \makecell[l]{ $H\subseteq S_M$ and for every answer set $A$ of\\ $B\cup H$, $A$ does not extend $p^-_i$ and $q^-_i$\\ (for all $i$)}\\\\
-\makecell[r]{iff} & \makecell[l]{$H\subseteq S_M$ and for every answer set $A$ of\\ $B\cup H$, $A$ contains $e^+_i$ and \\does not contain $e^-_i$ (for all $i$)}\\\\
-\makecell[r]{iff} & \makecell[l]{ $H$ is solution of $T_c$}\\
+\makecell{An hypothesis $H$ is solution of $T_{LAS}$ iff} & \makecell[lt]{ $H\subseteq S_M$ and for every answer set $A$ of\\ $B\cup H$, $A$ does not extend $p^-_i$ and $q^-_i$\\ (for all $i$)}\\\\
+\makecell[r]{iff} & \makecell[tl]{$H\subseteq S_M$ and for every answer set $A$ of\\ $B\cup H$, $A$ contains $e^+_i$ and \\does not contain $e^-_i$ (for all $i$)}\\\\
+\makecell[r]{iff} & \makecell[tl]{ $H$ is solution of $T_c$}\\
 \end{tabular}
 
 \bigskip
