@@ -1,10 +1,17 @@
+%%%%%%%%%%%%%%%
+%             % 
+% DESCRIPTION %
+%             %
+%%%%%%%%%%%%%%%
+
 % initialize the two players
 role(player1, red).
 role(player2, blue).
 
 % Opponent relations
-opponent_player(P1, P2) :- role(P1, C1), role(P2, C2), P1 != P2.
-opponent_color(C1, C2) :- role(P1, C1), role(P2, C2), C1 != C2.
+opponent_player(player1, player2).
+opponent_player(player2, player1).
+opponent_color(C1, C2) :- role(P1, C1), role(P2, C2), opponent_player(P1, P2).
 
 % describe the state of the game before any player plays
 holds(cell(coord(1..8,1..3), empty),1).
@@ -165,9 +172,11 @@ pawns_on_board(Player,N  ,T+1) :- role(Player, Color), time(T), pawns_on_board(P
 % A player is able to play if he can perform at least one action.
 able_to_play(Player, T) :- legal(Player, Action, T).
 
-
-
-
+%%%%%%%%%%%%%%
+%            % 
+% SIMULATION %
+%            %
+%%%%%%%%%%%%%%
 
 % only one action is performed at every step
 1{does(Player, M, T) : legal(Player, M, T)}1 :- time(T), not terminated(T).

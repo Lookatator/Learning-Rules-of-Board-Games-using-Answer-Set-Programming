@@ -22,7 +22,11 @@ A \textit{literal} is an atom or the negation (by failure) of an atom.
 
 \subsection{Stable Models (Answer Sets)}
 
-Let $P$ be a logic program and $X$ be an Herbrand Interpretation of $P$. From $P$ and $X$, we can construct a new program $P^X$ called the \textit{reduct} of $P$ by applying these methods:
+All the programs we will consider will be \textit{safe} (as defined for Disjunctive Logic Programs in \citep{dlp_safe}). As a consequence, every program can be grounded without ambiguity.
+
+\bigskip
+
+Let $P$ be a logic program and $X$ be an Herbrand Interpretation of $P$. From $P$ and $X$, we can construct a new program $P^X$ called the \textit{reduct} of $P$ by applying these methods \citep{stable_semantics, law_simplified}:
 \begin{itemize}
 \item For every rule $r\in P$, if $X\cap body^-(r)=\emptyset$, then we remove every negative literal in $r$.
 \item Otherwise, if $X\cap body^-(r)\neq\emptyset$, then we delete the whole rule.
@@ -34,28 +38,34 @@ Let $P$ be a logic program and $X$ be an Herbrand Interpretation of $P$. From $P
 \end{itemize}
 \end{itemize}
 
-Thus, the reduct $P^X$ is a \textit{definite} logic program (which means that it does not contain any negation as failure). Definite logic programs have a unique minimal Herbrand model, that is very easy to construct. We will write $M(P^X)$ the minimal Herbrand model of $P_X$.
+Thus, the reduct $P^X$ is a \textit{definite} logic program (which means that it does not contain any negation as failure). Definite logic programs have a unique minimal Herbrand \citep{sergot_minimal} model, that is very easy to construct. We will write $M(P^X)$ the minimal Herbrand model of $P_X$.
 
 \smallskip
 
-We call \textit{stable model} of $P$ every Herbrand interpretation $X$ that satisfies the relation: $X=M(P^X)$. Moreover, as we do not use classical negation $\neg$, we will not make a distinction between \textit{answer sets} and stable models.
+We call \textit{stable model} of $P$ every Herbrand interpretation $X$ that satisfies the relation: $X=M(P^X)$ \citep{sergot_stable_model}. Moreover, as we do not use classical negation $\neg$, we will not make a distinction between \textit{answer sets} and stable models.
 
 \smallskip
 
-Stable models of $P$ have more properties than its models in general: they also are \textit{minimal} (for inclusion) and \textit{supported} (every atom in the stable model appears in a rule whose body evaluates to \textit{true}). 
+Stable models of $P$ have more properties than its models in general: they also are \textit{minimal} (for inclusion) and \textit{supported} \citep{sergot_stable_model} (every atom in the stable model appears in a rule whose body evaluates to \textit{true}). 
 
 \subsection{Tools}
 
-For ASP problems, we will use some of the tools developed by the University of Potsdam: \texttt{gringo}, \texttt{clasp} and \texttt{clingo}. \texttt{gringo} transforms the logic program in input into an equivalent variable-free program (it is a \textit{grounder}). And \texttt{clasp} is a \textit{solver} capable of solving ground logic programs. Finally, \texttt{clingo} only combines grounding (with \texttt{gringo}) and solving (with \texttt{clasp}).
+For ASP problems, we will use some of the tools developed by the University of Potsdam: \texttt{gringo} \citep{gringo_paper}, \texttt{clasp} \citep{clasp} and \texttt{clingo} \citep{clingo_paper}. \texttt{gringo} transforms the logic program in input into an equivalent variable-free program (it is a \textit{grounder}) \citep{manual_clingo}. And \texttt{clasp} is a \textit{solver} capable of solving ground logic programs. Finally, \texttt{clingo} only combines grounding (with \texttt{gringo}) and solving (with \texttt{clasp}). 
 
 \smallskip
 
 We used the version 4.3.0 of \texttt{clingo} since this the one that ILASP uses.
 %TODO : reference manuel
 
-\subsection{Optimization in clingo}
+\smallskip
 
-In \texttt{clingo}, it is possible to explain what kind of answer sets are optimal by using \textit{weak constraints}. A weak constraint has the following form:
+\begin{remark}
+\texttt{gringo} (and \texttt{clingo} by extension) only works with \textit{safe} programs. \citep{manual_clingo}
+\end{remark}
+
+\subsection{Optimization in clingo}\label{subseq:optimization}
+
+In \texttt{clingo}, it is possible to explain what kind of answer sets are optimal by using \textit{weak constraints} \citep{manual_clingo}. A weak constraint has the following form:
 \begin{center}
 \texttt{:$\sim$ t$_1$, t$_2$, t$_3$,..., t$_n$.[w@p, id$_1$, id$_2$, ..., id$_m$]}
 \end{center}
@@ -63,7 +73,15 @@ where \texttt{w} is called the \textit{weight}, and \texttt{p} is called the \te
 
 \smallskip
 
-We call cost of an answer set $A$ for a given priority \texttt{p} (written $cost_{\texttt{p}}(A)$) the sum of the weights \texttt{w} of the different lists \texttt{[\texttt{w}, \texttt{p}, id$_1$, id$_2$, ..., id$_m$]} such that: there is at least a weak constraint whose ID is  \texttt{[\texttt{w}, \texttt{p}, id$_1$, id$_2$, ..., id$_m$]} that is not satisfied by $A$.
+\begin{remark}
+
+\texttt{id$_1$}, \texttt{id$_2$}, ..., \texttt{id$_m$}, \texttt{w} and \texttt{p} can be variables. \texttt{clingo} considers that a weak constraint is safe iff any variable among those atoms appears in a positive literal in the body of the weak constraint. 
+
+\end{remark}
+
+\smallskip
+
+We call cost of an answer set $A$ for a given priority \texttt{p} (written $cost_{\texttt{p}}(A)$) the sum of the weights \texttt{w} of the different lists \texttt{[\texttt{w}, \texttt{p}, id$_1$, id$_2$, ..., id$_m$]} such that: there is at least a weak constraint whose ID is  \texttt{[\texttt{w}, \texttt{p}, id$_1$, id$_2$, ..., id$_m$]} that is violated by $A$.
 
 \bigskip
 
@@ -75,7 +93,7 @@ As a consequence:
 
 \smallskip
 
-For \texttt{clingo}, in a given ASP program $P$, an answer set $A_1$ \textbf{is preferred to} $A_2$ if and only if $cost_{\texttt{p}}(A_1)<cost_{\texttt{p}}(A_2)$ where \texttt{p} is the lowest priority for which $cost_{\texttt{p}}(A_1)\neq cost_{\texttt{p}}(A_2)$.
+For \texttt{clingo}, in a given ASP program $P$, an answer set $A_1$ \textbf{is preferred to} $A_2$ if and only if $cost_{\texttt{p}}(A_1)<cost_{\texttt{p}}(A_2)$ where \texttt{p} is the highest priority for which $cost_{\texttt{p}}(A_1)\neq cost_{\texttt{p}}(A_2)$.
 
 \begin{example}
 We consider the following ASP program:\newline
@@ -98,18 +116,23 @@ This ASP program has two answer sets: $A_1 = \{ \texttt{go\_on\_holidays}, \text
 \item $A_2$ satisfies only the first weak constraint. So its scores are $cost_1(A_2)=0$ and $cost_2(A_2)=-1$.
 \end{itemize}
 
-The highest priority is 2 and $cost_2(A_2)<cost_2(A_1)$. Thus, $A_2=\{ \texttt{work\_at\_imperial}, \texttt{good\_mark} \}$ is optimal.
-
+The highest priority is 2 and $cost_2(A_2)<cost_2(A_1)$. Thus, $A_2=\{ \texttt{work\_at\_imperial}, \texttt{good\_mark} \}$ is optimal, even if $cost_1(A_2)>cost_1(A_1)$.
 \end{example}
-
-
-%TODO : référence manuel ou référence à l'article évoqué dans manuel.
 
 \section{Single-Player Games in ASP}
 
-It is possible to formalize and solve Single-Player Games in ASP. To illustrate the predicates that can be used to describe these games, we will focus on a basic example: a simple graph game.
+%TODO : parler ici de GDL c'est quoi + ref 
+%TODO : stratified imposed by GDL
 
-%TODO : référence 
+With Game Description Language (GDL) \citep{gdl}, it is possible to describe finite games with any number of players by using logical facts and rules, that describe respectively the states and mechanics of the tame.
+
+\smallskip
+
+On the basis of GDL, \citep{thielscher2009answer} explains how to describe any finite single-player game in Answer Set Programming (ASP) and how to use \texttt{clingo} to simulate a game play.
+
+\smallskip
+
+To illustrate the predicates that can be used to describe the games under study, we will focus on a basic example: a simple graph game. After having explained the rules of the game, we will \textbf{describe} it in ASP, and then, we will add some rule in order to \textbf{simulate} a game play.
 
 \subsection{Rules of the game}
 
@@ -129,7 +152,7 @@ The rules of the graph game on figure \ref{fig:agent} are the following:
 \end{figure}
 
 \subsection{Describing the game in ASP}
-
+\label{subsection:asp_description}
 \begin{itemize}
 
 \item We start by defining the different players in the game by using the predicate \texttt{role}. Here, there is only one player so we include the fact: \texttt{role(player).}
@@ -162,10 +185,10 @@ All these rules are \textbf{describing} the game in ASP.
 
 \bigskip
 
-We will respect the following Game Description Language (GDL) restriction: as long as we \textbf{describe} the game in ASP (and do not want to \textbf{simulate} a game play), the predicate \texttt{does} only appears in rule bodies, and does not appear in the definition of \texttt{terminal}, \texttt{goal} or \texttt{legal}.
+We will respect the following Game Description Language (GDL) restrictions: as long as we \textbf{describe} the game in ASP (and do not want to \textbf{simulate} a game play), the predicate \texttt{does} only appears in rule bodies, and does not appear in the definition of \texttt{terminal}, \texttt{goal} or \texttt{legal}. Besides, a GDL game must be \textit{stratified} \citep{stratified, gdl}. But if \texttt{not holds(P, A, T)} appears in the definition of \texttt{holds(P, action\_1, T+1)}, there will not be any problem with the description or the simulation of the game. That is why our Answer Sets Programs for game description will be \textit{locally stratified} \citep{locally_stratified}
 
 \subsection{Finding a solution to the game/Simulating a gameplay}
-
+\label{subsection:simulate}
 We have just defined a few predicates to translate the rules of the game in ASP. Now we want to \textbf{simulate} a game play and find winning sequences of moves.
 \begin{itemize}
 \item First of all, the player can do only one move at every time step (as long as the game is not finished).\newline
@@ -186,6 +209,8 @@ Where \texttt{terminated(T)} is true if and only if there is a T1 such that $T1<
 
 \end{itemize}
 
+\colorbox{yellow}{TO DO: an ASP solution ?}
+
 \section{Inductive Logic Programming}
 
 In this part, $B$ is the logic program that represents the \textit{Background Knowledge}, $S_M$ is the set of possible hypotheses, $E^+$ is the set of positive examples (all the elements that have been observed) and $E^-$ is the set of negative examples (all the elements that can't appear in any result). Our task is to find an hypothesis $H\in S_M$ such that $B\cup H$ \textit{explains} $E^+$ and $E^-$. There are different ways of defining the word "explains" used in the last sentence. We will have a look at three of them.
@@ -198,7 +223,7 @@ In this part, $B$ is the logic program that represents the \textit{Background Kn
 
 \begin{definition}
 
-A brave inductive task is a tuple $T_b=<B, S_M, E^+, E^->$ where $E^+$ and $E^-$ are sets of atoms occurring in $B$. 
+A \textit{brave inductive task} is a tuple $T_b=<B, S_M, E^+, E^->$ where $E^+$ and $E^-$ are sets of atoms occurring in the Herbrand Base of $B$. 
 
 \smallskip
 
@@ -212,10 +237,9 @@ We call $ILP_b(B,E^+,E^-)$ the set of hypotheses that are solutions of $T_b$.
 
 \subsubsection{ASPAL encoding}
 
-By using ASPAL, we can find the optimal solutions to a brave inductive task. We
-illustrate how to use the ASPAL encoding with clingo in the following example.\bigskip
+By using ASPAL \citep{aspal}, we can find the optimal solutions to a brave inductive task. We illustrate how to use ASPAL encoding with \texttt{clingo} in the following example.\bigskip
 
-First of all, we consider the background knowledge B:\newline
+First of all, we consider the background knowledge $B$:\newline
 \texttt{person(Nicolas). person(Pierre).\\
 play\_video\_games(Nicolas). play\_video\_games(Pierre). works(Nicolas).}\\
 
@@ -223,33 +247,46 @@ And we take: $E^+=\{\texttt{good\_marks(Nicolas)}\}$ and $E^-=\{\texttt{good\_ma
 
 \begin{itemize}
 \item We are studying the hypotheses that are following this mode: \texttt{modeh(good\_marks(+X))}, \texttt{modeb(1,works(+X))} and \texttt{modeb(1,play\_video\_games(+X))}. So we write all the possible hypotheses, and we add the predicate rule/1 that takes as an argument the id of the hypothesis.\newline
-\texttt{good marks(P) :- rule(1).\\
-good\_marks(P) :- works(P), rule(2).\\
-good\_marks(P) :- play\_video\_games(+P), rule(3).\\
-good\_marks(P) :- works(P), play\_video\_games(+P), rule(4).}
+\texttt{good marks(P) :- person(P), rule(1).\\
+good\_marks(P) :- person(P), works(P), rule(2).\\
+good\_marks(P) :- person(P), play\_video\_games(P), rule(3).\\
+good\_marks(P) :- person(P), works(P), play\_video\_games(P), rule(4).}
 
 \item We will select some rules between those above:\newline
-\texttt{\{rule(1..4).\}}
+\texttt{0\{rule(1..4).\}4}
 
 \item And we want to respect the examples:\newline
 \texttt{goal :- good\_marks(Nicolas), not good\_marks(Pierre).\\
 :- not goal.}
 
 \item Finally, we want to find the optimal (the shortest) hypothesis:\newline
-\texttt{\#minimize[rule(1)=1,rule(2)=2,rule(3)=2,rule(4)=3].}
-
+\texttt{:$\sim$ rule(1).[2@1] \% the weight denotes the length of the rule\\
+:$\sim$ rule(2).[3@1]\\
+:$\sim$ rule(3).[3@1]\\
+:$\sim$ rule(4).[4@1]\\}
 \end{itemize}
 
+\texttt{clingo} finds three answer sets for the new ASP program:
+\begin{itemize}
+\item The first one $A_1$ contains \texttt{rule(2)}, and \texttt{rule(i)}$\not \in A_1$ for $\texttt{i}\neq 2$. Also, \texttt{rule(2)} denotes the following hypothesis: $H_1=\{\texttt{good\_marks(P) :- person(P), works(P).}\}$. So $H_1\in ILP_b(B,E^+,E^-)$. Moreover, as  \texttt{rule(2)} appears in the body of the second weak constraint, $cost_{1}(A_1)=3$ (see \ref{subseq:optimization}).
 
+\item The second answer set $A_2$ only contains \texttt{rule(4)}, which denotes \\$H_2=\{$\texttt{good\_marks(P) :- person(P), works(P), play\_video\_games(P).}$\}$. As a consequence, $H_2\in ILP_b(B,E^+,E^-)$, and $cost_{1}(A_2)=4$.
 
+\item The third answer set $A_3$ contains both \texttt{rule(2)} and \texttt{rule(4)}. As a consequence, $H_1\cup H_2 \in ILP_b(B,E^+,E^-)$, and $cost_{1}(A_3)=7$.
 
-%TODO défauts d'ASPAL
+\end{itemize} 
+
+As $cost_{1}(A_1)<cost_{1}(A_2)<cost_{1}(A_3)$ (see \ref{subseq:optimization}), the optimal answer set is $A_1$, which means that the optimal (shortest in this case) hypothesis is $H_1$. 
+
+\bigskip
+
+We have just seen that with the ASPAL encoding, we can find an hypothesis for which \textit{there is} an answer set respecting all the positive and negative examples. However, it is not able to find a solution to a \textit{cautious inductive task}. 
 
 \subsection{Cautious Inductive Logic Programming}
 
 \begin{definition}
 
-A cautious inductive task is a tuple $T_c=<B, E^+, E^->$ where $E^+$ and $E^-$ are sets of atoms occurring in $B$.
+A \textit{cautious inductive task} is a tuple $T_c=<B, E^+, E^->$ where $E^+$ and $E^-$ are sets of atoms occurring in the Herbrand Base of $B$.
 
 \smallskip
 
@@ -269,19 +306,21 @@ We call $ILP_c(B,E^+,E^-)$ the set of hypotheses that are solutions of $T_c$.
 
 \subsection{Inductive Learning From Answer Sets Programming}
 
-We present here a new type of inductive task which is more general than the cautious and the brave inductive tasks.
+We present here a new type of inductive task which is more general than the cautious and the brave inductive tasks. All the definitions and remarks in this subsection are based on \citep{law2014inductive, law2015weak, law2016context} and were reformulated as much as possible for this report. Nevertheless, all the examples were created by us.
 
 \subsubsection{Partial Interpretations}
 
-We call \textit{partial interpretation} a tuple $<e^+,e^->$ where $e^+=\{e^+_1,e^+_2,...,e^+_m\}$ and $e^-=\{e^-_1,e^-_2,...,e^-_n\}$ are two sets of atoms.
+\begin{definition}[\citep{law2014inductive}]
+We call \textit{partial interpretation} a tuple $<e^+,e^->$ where $e^+=\{e^+_1,e^+_2,...,e^+_m\}$ and $e^-=\{e^-_1,e^-_2,...,e^-_n\}$ are two sets of atoms. 
 
 \smallskip
 
 We say that an interpretation $I$ of $B$ extends a partial interpretation $<e^+,e^->$ iff $e^+ \subseteq I$ and $e^- \cap I = \emptyset$.
+\end{definition}
 
 \subsubsection{Learning from Answer Sets Induction}
 
-\begin{definition}
+\begin{definition}[\citep{law2014inductive}]
 
 A \textit{Learning from Answer Sets task} is a tuple $T_{LAS}=<B, S_M, E^+, E^->$ where $S_M$ is the hypothesis space; and $E^+$ and $E^-$ are sets of partial interpretations. 
 
@@ -332,8 +371,7 @@ Thus $ILP_{LAS}(B,S_M,E^+,E^-)=\{\texttt{good\_mark(P) :- student(P), works(P), 
 \end{example}
 
 \begin{remark}
-
-Every brave or cautious inductive task is a Learning from Answer Sets task. But the inverse is not true.
+Every brave or cautious inductive task is a Learning from Answer Sets task \citep{law_notes}. But the inverse is not true.
 
 %TODO : reference paper
 %TODO : proof ? in appendix ?
@@ -382,9 +420,9 @@ So, the two tasks $T_c$ and $T_{LAS}$ are equivalent. Thus, we can construct a L
 
 \subsubsection{Learning from Ordered Answer Sets}
 
-The definition of Learning from Answer Sets task can be extended to take into account the ordering relations between the different answer sets of the ASP program. We will first define what is an ordering example, and how it can be used to represent the ordering relations \citep{law2015weak}.
+The definition of Learning from Answer Sets task can be extended to take into account the ordering relations between the different answer sets of the ASP program \citep{law2015weak}. We will first define what is an ordering example, and how it can be used to represent the ordering relations.
 
-\begin{definition}
+\begin{definition}[\citep{law2015weak}]
 
 We will call \textit{ordering example} every pair $<e_1,e_2>$ of partial interpretations. These are two ways for an ASP program to cover an ordering example:
 \begin{itemize}
@@ -470,7 +508,7 @@ We will call \textit{Context-Dependant Ordering Example} every pair $<<e_1,C_1>,
 %TODO : coverage ????
 Now that we have a definition for Context-Dependant Ordering Examples, for brave coverage and for cautious coverage, the \textit{Learning from Context Dependant Answer Sets task} can be defined.
 
-\begin{definition}
+\begin{definition}[\citep{law2016context}]
 A \textit{Learning from Context Dependant Answer Sets task} is a tuple $T_{LOAS}^{Context}=<B, S_M, E^+, E^-,O^{brave}, O^{cautious}>$, where $S_M$ is the hypothesis space; $E^+$ and $E^-$ are sets of tuples $<<e^+,e^->,C>$ containing a partial interpretation $<e^+,e^->$ and a context $C$; and $O^{brave}$ and $O^{cautious}$ are sets of ordering examples such that: every partial interpretation that appears in $O^{brave}$ and $O^{cautious}$ is in $E^+$.
 
 \smallskip
@@ -530,7 +568,7 @@ Finally, with the last hypothesis, all the positive and negative examples are re
 
 \subsubsection{ILASP}
 
-ILASP is a tool developed at Imperial College London that is capable of finding the optimal hypothesis for Learning from Answer Sets tasks. We only need to give it: the background knowledge with the \texttt{clingo} syntax, and the mode declaration for the variables that can appear in the head or in the body of a rule in the hypothesis. We can also specify the positive and negative partial interpretations of the task. By default, ILASP considers that the optimal hypothesis is the one that contains the least number of atoms.
+ILASP is a tool developed at Imperial College London that is capable of finding the optimal hypothesis for Learning from Context Dependent Answer Sets tasks . We only need to give it: the background knowledge with the \texttt{clingo} syntax, and the mode declaration for the variables that can appear in the head or in the body of a rule in the hypothesis. We can also specify the positive and negative partial interpretations of the task. By default, ILASP considers that the optimal hypothesis is the one that contains the least number of atoms.
 
 \paragraph{Learning rules of games/environment}
 
